@@ -1,0 +1,11 @@
+# HTML pages - check for updates but use cache if unchanged
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Static assets with hash - cache forever (immutable)
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Pagefind search index
+/pagefind/*
+  Cache-Control: public, max-age=0, must-revalidate
