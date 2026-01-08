@@ -1,0 +1,26 @@
+{
+    "$schema": "https://lunariajs.io/config.schema.json",
+    "repository": {
+        "name": "chanomhub/Docs"
+    },
+    "defaultLocale": {
+        "label": "ภาษาไทย",
+        "lang": "th"
+    },
+    "locales": [
+        {
+            "label": "English",
+            "lang": "en"
+        }
+    ],
+    "files": [
+        {
+            "type": "universal",
+            "location": "src/content/docs/**/*.{md,mdx}",
+            "pattern": "src/content/docs/@lang/@path"
+        }
+    ],
+    "tracking": {
+        "localizableProperty": "i18nReady"
+    }
+}

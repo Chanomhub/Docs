@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.37.2",
+    "@lunariajs/core": "^0.1.1",
+    "@lunariajs/starlight": "^0.1.1",
     "astro": "^5.16.7",
     "sharp": "^0.34.5"
   }

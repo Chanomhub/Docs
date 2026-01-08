@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import lunaria from '@lunariajs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,6 +10,8 @@ export default defineConfig({
 		starlight({
 			title: 'ChanomHub Docs',
 			favicon: '/favicon.png',
+			// Lunaria translation tracking plugin
+			plugins: [lunaria()],
 			// Custom components to prevent caching
 			components: {
 				Head: './src/components/Head.astro',
