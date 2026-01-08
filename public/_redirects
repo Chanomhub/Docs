@@ -1,0 +1,2 @@
+# Redirect favicon.ico to favicon.png
+/favicon.ico /favicon.png 301
