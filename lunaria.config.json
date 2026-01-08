@@ -3,6 +3,12 @@
     "repository": {
         "name": "chanomhub/Docs"
     },
+    "outDir": "./dist/lunaria",
+    "dashboard": {
+        "title": "ChanomHub Translation Status",
+        "description": "Track the translation status of ChanomHub documentation",
+        "site": "https://docs.chanomhub.com/lunaria/"
+    },
     "defaultLocale": {
         "label": "ภาษาไทย",
         "lang": "th"

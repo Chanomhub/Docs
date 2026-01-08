@@ -36,6 +36,9 @@ jobs:
       - name: Build with Astro
         run: bun run build
 
+      - name: Build Lunaria dashboard
+        run: bunx @lunariajs/core build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
