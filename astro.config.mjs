@@ -10,6 +10,10 @@ export default defineConfig({
 		starlight({
 			title: 'ChanomHub Docs',
 			favicon: '/favicon.png',
+			// Custom components to prevent caching
+			components: {
+				Head: './src/components/Head.astro',
+			},
 			// Configure i18n
 			locales: {
 				// Thai as root/default locale
