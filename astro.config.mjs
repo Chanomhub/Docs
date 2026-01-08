@@ -4,8 +4,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://chanomhub.github.io',
-	base: '/Docs',
+	site: 'https://docs.chanomhub.com',
 	integrations: [
 		starlight({
 			title: 'ChanomHub Docs',
