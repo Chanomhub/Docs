@@ -1,0 +1,28 @@
+---
+title: API Reference
+description: เอกสารอ้างอิง API ของ ChanomHub
+---
+
+## การตั้งค่า
+
+### `ChanomHub`
+
+Constructor สำหรับสร้าง client instance
+
+```typescript
+interface ChanomHubOptions {
+  apiKey: string;
+  baseUrl?: string;
+  timeout?: number;
+}
+
+const client = new ChanomHub(options: ChanomHubOptions);
+```
+
+#### Parameters
+
+| พารามิเตอร์ | ประเภท | คำอธิบาย |
+|------------|--------|---------|
+| `apiKey` | `string` | API key สำหรับการยืนยันตัวตน |
+| `baseUrl` | `string` | URL หลักของ API (ไม่บังคับ) |
+| `timeout` | `number` | ระยะเวลา timeout เป็น ms (ไม่บังคับ) |

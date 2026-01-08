@@ -1,0 +1,28 @@
+---
+title: API Reference
+description: ChanomHub API Reference Documentation
+---
+
+## Configuration
+
+### `ChanomHub`
+
+Constructor for creating a client instance
+
+```typescript
+interface ChanomHubOptions {
+  apiKey: string;
+  baseUrl?: string;
+  timeout?: number;
+}
+
+const client = new ChanomHub(options: ChanomHubOptions);
+```
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `apiKey` | `string` | API key for authentication |
+| `baseUrl` | `string` | Base URL for the API (optional) |
+| `timeout` | `number` | Timeout duration in ms (optional) |

@@ -1,0 +1,64 @@
+---
+title: ChanomHub Docs - เอกสารและคู่มือสำหรับนักพัฒนา
+description: ศูนย์รวมเอกสาร API, คู่มือการใช้งาน และตัวอย่างโค้ดสำหรับ ChanomHub SDK - แพลตฟอร์มสำหรับนักพัฒนาที่ต้องการสร้างแอปพลิเคชันที่ยอดเยี่ยม
+template: splash
+hero:
+  tagline: เอกสาร API และคู่มือการใช้งานที่ครบถ้วนสำหรับนักพัฒนา พร้อมตัวอย่างโค้ดและ Best Practices
+  image:
+    file: ../../assets/hero.png
+    alt: ChanomHub Documentation Hero Image
+  actions:
+    - text: เริ่มต้นใช้งาน
+      link: /Docs/guides/getting-started/
+      icon: right-arrow
+    - text: API Reference
+      link: /Docs/reference/api/
+      icon: document
+      variant: minimal
+    - text: GitHub
+      link: https://github.com/chanomhub
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## เริ่มต้นอย่างรวดเร็ว
+
+ติดตั้ง ChanomHub SDK ด้วยคำสั่งเดียว:
+
+```bash
+npm install @chanomhub/sdk
+```
+
+## ฟีเจอร์หลัก
+
+<CardGrid stagger>
+  <Card title="ง่ายต่อการใช้งาน" icon="rocket">
+    API ที่ออกแบบมาเพื่อความเรียบง่าย พร้อม TypeScript support เต็มรูปแบบ
+  </Card>
+  <Card title="เอกสารครบถ้วน" icon="open-book">
+    คู่มือที่ละเอียด พร้อมตัวอย่างโค้ดและ Best Practices
+  </Card>
+  <Card title="รองรับหลายภาษา" icon="translate">
+    เอกสารพร้อมใช้งานทั้งภาษาไทยและภาษาอังกฤษ
+  </Card>
+  <Card title="Open Source" icon="github">
+    โค้ดเปิดเผยบน GitHub พร้อมรับ contributions จากทุกคน
+  </Card>
+</CardGrid>
+
+## เรียนรู้เพิ่มเติม
+
+<CardGrid>
+  <LinkCard
+    title="คู่มือเริ่มต้น"
+    description="เรียนรู้พื้นฐานการติดตั้งและตั้งค่า SDK"
+    href="/Docs/guides/getting-started/"
+  />
+  <LinkCard
+    title="API Reference"
+    description="ดูรายละเอียด API และ parameters ทั้งหมด"
+    href="/Docs/reference/api/"
+  />
+</CardGrid>
