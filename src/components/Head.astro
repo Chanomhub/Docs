@@ -1,6 +1,12 @@
 ---
 // Custom Head component - stale-while-revalidate caching strategy
 // Shows cached content immediately, but revalidates in background for next visit
+import type { Props } from '@astrojs/starlight/props';
+import StarlightHead from '@astrojs/starlight/components/Head.astro';
 ---
-<meta charset="utf-8" />
+
+<!-- Include Starlight's default head (title, meta description, etc.) -->
+<StarlightHead {...Astro.props}><slot /></StarlightHead>
+
+<!-- Custom cache control -->
 <meta http-equiv="Cache-Control" content="public, max-age=0, must-revalidate" />
