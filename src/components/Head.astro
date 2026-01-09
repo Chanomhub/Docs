@@ -8,5 +8,9 @@ import StarlightHead from '@astrojs/starlight/components/Head.astro';
 <!-- Include Starlight's default head (title, meta description, etc.) -->
 <StarlightHead {...Astro.props}><slot /></StarlightHead>
 
+<!-- Performance optimization hints -->
+<link rel="preconnect" href="https://docs.chanomhub.com" />
+<link rel="dns-prefetch" href="https://docs.chanomhub.com" />
+
 <!-- Custom cache control -->
 <meta http-equiv="Cache-Control" content="public, max-age=0, must-revalidate" />
