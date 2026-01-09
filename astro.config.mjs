@@ -2,11 +2,13 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import lunaria from '@lunariajs/starlight';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://docs.chanomhub.com',
 	integrations: [
+		sitemap(),
 		starlight({
 			title: 'ChanomHub Docs',
 			favicon: '/favicon.png',

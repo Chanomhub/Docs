@@ -10,6 +10,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.6.1",
     "@astrojs/starlight": "^0.37.2",
     "@lunariajs/core": "^0.1.1",
     "@lunariajs/starlight": "^0.1.1",
