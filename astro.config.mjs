@@ -1,56 +1,49 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import lunaria from '@lunariajs/starlight';
 import sitemap from '@astrojs/sitemap';
 
-// https://astro.build/config
 export default defineConfig({
 	site: 'https://docs.chanomhub.com',
 	integrations: [
 		sitemap(),
 		starlight({
 			title: 'ChanomHub Docs',
-			favicon: '/favicon.png',
-			// Lunaria translation tracking plugin
-			plugins: [lunaria()],
-			// Custom components to prevent caching
-			components: {
-				Head: './src/components/Head.astro',
-			},
-			// Configure i18n
+			defaultLocale: 'root',
 			locales: {
-				// Thai as root/default locale
 				root: {
-					label: 'ภาษาไทย',
-					lang: 'th',
+					label: 'ไทย',
+					lang: 'en',
 				},
-				// English as alternate locale
 				en: {
 					label: 'English',
 					lang: 'en',
 				},
 			},
-			defaultLocale: 'root',
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/chanomhub' },
 			],
 			sidebar: [
 				{
-					label: 'คู่มือ',
-					translations: { en: 'Guides' },
+					label: 'เริ่มต้นใช้งาน',
+					translations: { en: 'Getting Started' },
 					items: [
-						{
-							label: 'เริ่มต้นใช้งาน',
-							translations: { en: 'Getting Started' },
-							slug: 'guides/getting-started'
-						},
+						{ label: 'คู่มือเริ่มต้น', slug: 'guides/getting-started', translations: { en: 'Getting Started Guide' } },
 					],
 				},
 				{
-					label: 'อ้างอิง',
-					translations: { en: 'Reference' },
-					autogenerate: { directory: 'reference' },
+					label: 'ChanoX2',
+					items: [
+						{ label: 'เริ่มต้นใช้งาน', slug: 'chanox2/getting-started', translations: { en: 'Getting Started' } },
+						{ label: 'การติดตั้ง', slug: 'chanox2/installation', translations: { en: 'Installation' } },
+						{ label: 'การตั้งค่า', slug: 'chanox2/configuration', translations: { en: 'Configuration' } },
+						{ label: 'แก้ไขปัญหา', slug: 'chanox2/troubleshooting', translations: { en: 'Troubleshooting' } },
+					],
+				},
+				{
+					label: 'API Reference',
+					items: [
+						{ label: 'API', slug: 'reference/api' },
+					],
 				},
 			],
 		}),
