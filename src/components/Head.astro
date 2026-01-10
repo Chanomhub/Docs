@@ -14,3 +14,32 @@ import StarlightHead from '@astrojs/starlight/components/Head.astro';
 
 <!-- Custom cache control -->
 <meta http-equiv="Cache-Control" content="public, max-age=0, must-revalidate" />
+
+<!-- Client-side language detection and redirect -->
+<script is:inline>
+(function() {
+  // Only run on first visit (no locale preference set)
+  if (localStorage.getItem('locale_checked')) return;
+  
+  // Only run on root locale pages (not /en/)
+  if (window.location.pathname.startsWith('/en/')) {
+    localStorage.setItem('locale_checked', 'true');
+    return;
+  }
+  
+  // Detect browser language
+  const browserLang = navigator.language || navigator.userLanguage || '';
+  const primaryLang = browserLang.split('-')[0].toLowerCase();
+  
+  // Redirect to English if browser prefers English
+  if (primaryLang === 'en') {
+    localStorage.setItem('locale_checked', 'true');
+    const newPath = '/en' + (window.location.pathname === '/' ? '/' : window.location.pathname);
+    window.location.replace(newPath);
+    return;
+  }
+  
+  // Mark as checked for Thai or other languages
+  localStorage.setItem('locale_checked', 'true');
+})();
+</script>
