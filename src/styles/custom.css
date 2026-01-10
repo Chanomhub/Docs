@@ -1,0 +1,49 @@
+/*
+ * Custom CSS for ChanomHub Docs
+ * Fixes CLS (Cumulative Layout Shift) issues
+ */
+
+/* Prevent layout shift from right sidebar (Table of Contents) */
+.right-sidebar {
+  /* Reserve space to prevent CLS when TOC loads */
+  min-height: 200px;
+  contain: layout style;
+}
+
+/* Ensure sidebar wrapper has consistent dimensions */
+.right-sidebar-container {
+  min-width: var(--sl-sidebar-width, 18rem);
+}
+
+/* Prevent font loading layout shifts */
+:root {
+  font-display: optional;
+}
+
+/* Stabilize Table of Contents container */
+starlight-toc {
+  display: block;
+  min-height: 100px;
+}
+
+/* Reserve space for TOC navigation links */
+starlight-toc nav {
+  min-height: inherit;
+}
+
+/* Prevent heading links from causing shifts */
+.right-sidebar h2 {
+  min-height: 1.5em;
+}
+
+/* Stabilize the main content grid layout */
+.sl-container {
+  contain: layout;
+}
+
+/* Mobile menu stability */
+@media (max-width: 72rem) {
+  .right-sidebar {
+    min-height: 0;
+  }
+}

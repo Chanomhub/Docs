@@ -8,6 +8,7 @@ export default defineConfig({
 		sitemap(),
 		starlight({
 			title: 'ChanomHub Docs',
+			customCss: ['./src/styles/custom.css'],
 			defaultLocale: 'root',
 			locales: {
 				root: {
