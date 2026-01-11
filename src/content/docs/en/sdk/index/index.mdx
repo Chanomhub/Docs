@@ -1,0 +1,82 @@
+---
+title: "index"
+description: "Renames and re-exports [createChanomhubClient](/api/index/functions/createChanomhubClient.mdx)"
+---
+
+## Classes
+
+| Class | Description |
+| ------ | ------ |
+| [AuthenticationError](/api/index/classes/AuthenticationError.mdx) | Authentication error (401) - Missing or invalid token |
+| [AuthorizationError](/api/index/classes/AuthorizationError.mdx) | Authorization error (403) - Insufficient permissions |
+| [ChanomhubError](/api/index/classes/ChanomhubError.mdx) | Base error class for all SDK errors |
+| [NetworkError](/api/index/classes/NetworkError.mdx) | Network error - Fetch failures, timeouts, etc. |
+| [NotFoundError](/api/index/classes/NotFoundError.mdx) | Not found error (404) - Resource doesn't exist |
+| [RateLimitError](/api/index/classes/RateLimitError.mdx) | Rate limit error (429) - Too many requests |
+| [ValidationError](/api/index/classes/ValidationError.mdx) | Validation error (400) - Invalid request data |
+
+## Interfaces
+
+| Interface | Description |
+| ------ | ------ |
+| [Article](/api/index/interfaces/Article.mdx) | Full Article type |
+| [ArticleFilter](/api/index/interfaces/ArticleFilter.mdx) | Article filter options |
+| [ArticleListItem](/api/index/interfaces/ArticleListItem.mdx) | Partial article for list views |
+| [ArticleListOptions](/api/index/interfaces/ArticleListOptions.mdx) | Article list options |
+| [ArticleWithDownloads](/api/index/interfaces/ArticleWithDownloads.mdx) | Article with downloads response |
+| [Author](/api/index/interfaces/Author.mdx) | Author type |
+| [AuthSession](/api/index/interfaces/AuthSession.mdx) | Auth session state |
+| [ChanomhubClient](/api/index/interfaces/ChanomhubClient.mdx) | Chanomhub SDK Client interface |
+| [ChanomhubConfig](/api/index/interfaces/ChanomhubConfig.mdx) | Chanomhub SDK Configuration |
+| [Download](/api/index/interfaces/Download.mdx) | Download link type |
+| [GraphQLResponse](/api/index/interfaces/GraphQLResponse.mdx) | GraphQL response wrapper |
+| [ImageObject](/api/index/interfaces/ImageObject.mdx) | Image object |
+| [ListOptions](/api/index/interfaces/ListOptions.mdx) | Pagination options |
+| [LoginResponse](/api/index/interfaces/LoginResponse.mdx) | Login response from backend after token exchange |
+| [LoginSupabaseRequest](/api/index/interfaces/LoginSupabaseRequest.mdx) | Backend login request |
+| [Mod](/api/index/interfaces/Mod.mdx) | Mod type |
+| [NamedEntity](/api/index/interfaces/NamedEntity.mdx) | Named entity (tag, category, platform, etc.) |
+| [NativeOAuthConfig](/api/index/interfaces/NativeOAuthConfig.mdx) | Native OAuth provider configuration for React Native |
+| [NativeOAuthOptions](/api/index/interfaces/NativeOAuthOptions.mdx) | Options for native OAuth sign-in |
+| [NativeOAuthResult](/api/index/interfaces/NativeOAuthResult.mdx) | Native OAuth authorization result from react-native-app-auth |
+| [OAuthOptions](/api/index/interfaces/OAuthOptions.mdx) | OAuth redirect options |
+| [OfficialDownloadSource](/api/index/interfaces/OfficialDownloadSource.mdx) | Official download source |
+| [PaginatedResponse](/api/index/interfaces/PaginatedResponse.mdx) | Paginated response wrapper |
+| [Profile](/api/index/interfaces/Profile.mdx) | Public profile |
+| [ProfileResponse](/api/index/interfaces/ProfileResponse.mdx) | Profile response wrapper |
+| [RefreshResponse](/api/index/interfaces/RefreshResponse.mdx) | Token refresh response from backend |
+| [RefreshTokenRequest](/api/index/interfaces/RefreshTokenRequest.mdx) | Backend refresh token request |
+| [SupabaseSession](/api/index/interfaces/SupabaseSession.mdx) | Supabase session (minimal type for SDK use) |
+| [User](/api/index/interfaces/User.mdx) | Current logged-in user |
+| [UserResponse](/api/index/interfaces/UserResponse.mdx) | User response wrapper |
+
+## Type Aliases
+
+| Type Alias | Description |
+| ------ | ------ |
+| [ArticleField](/api/index/type-aliases/ArticleField.mdx) | Available fields for custom selection |
+| [ArticlePreset](/api/index/type-aliases/ArticlePreset.mdx) | Field preset levels for article queries - minimal: Basic info only (id, title, slug, mainImage) - best for cards/thumbnails - standard: Common fields for list views (default) - full: All available fields including body content |
+| [ArticleStatus](/api/index/type-aliases/ArticleStatus.mdx) | Article status enum |
+| [GameEngine](/api/index/type-aliases/GameEngine.mdx) | Game engine enum |
+| [OAuthProvider](/api/index/type-aliases/OAuthProvider.mdx) | Supported OAuth providers |
+
+## Variables
+
+| Variable | Description |
+| ------ | ------ |
+| [DEFAULT\_CONFIG](/api/index/variables/DEFAULT_CONFIG.mdx) | - |
+
+## Functions
+
+| Function | Description |
+| ------ | ------ |
+| [createAuthenticatedClient](/api/index/functions/createAuthenticatedClient.mdx) | Creates a client with authentication token Convenience function for authenticated requests |
+| [createChanomhubClient](/api/index/functions/createChanomhubClient.mdx) | Creates a Chanomhub API client |
+| [createErrorFromStatus](/api/index/functions/createErrorFromStatus.mdx) | Creates the appropriate error class based on HTTP status code |
+| [resolveImageUrl](/api/index/functions/resolveImageUrl.mdx) | Resolves an image URL. - If it's just a filename (e.g., "abc.jpg"), prepends the CDN base URL - If it's already a full URL, returns it as-is - Handles null/undefined gracefully |
+
+## References
+
+### default
+
+Renames and re-exports [createChanomhubClient](/api/index/functions/createChanomhubClient.mdx)

@@ -1,0 +1,26 @@
+---
+title: "Function: resolveImageUrl()"
+description: "```ts"
+---
+
+```ts
+function resolveImageUrl(imageUrl, cdnUrl): string | null;
+```
+
+Defined in: [transforms/imageUrl.ts:13](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/transforms/imageUrl.ts#L13)
+
+Resolves an image URL.
+- If it's just a filename (e.g., "abc.jpg"), prepends the CDN base URL
+- If it's already a full URL, returns it as-is
+- Handles null/undefined gracefully
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `imageUrl` | `string` \| `null` \| `undefined` |
+| `cdnUrl` | `string` |
+
+## Returns
+
+`string` \| `null`

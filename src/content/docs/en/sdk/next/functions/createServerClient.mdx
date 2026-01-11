@@ -1,0 +1,25 @@
+---
+title: "Function: createServerClient()"
+description: "```ts"
+---
+
+```ts
+function createServerClient(config): Promise<ChanomhubClient>;
+```
+
+Defined in: [next.ts:26](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/next.ts#L26)
+
+Creates a server-side Chanomhub client for Next.js
+Automatically reads authentication token from cookies
+
+## Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `Partial`\<[`ChanomhubConfig`](/api/index/interfaces/ChanomhubConfig.mdx)\> | Optional configuration overrides |
+
+## Returns
+
+`Promise`\<[`ChanomhubClient`](/api/index/interfaces/ChanomhubClient.mdx)\>
+
+Promise<ChanomhubClient>

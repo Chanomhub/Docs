@@ -7,7 +7,8 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "lunaria": "lunaria build"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.1",
@@ -16,5 +17,8 @@
     "@lunariajs/starlight": "^0.1.1",
     "astro": "^5.16.7",
     "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "wrangler": "^4.58.0"
   }
 }

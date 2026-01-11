@@ -23,7 +23,10 @@
         {
             "type": "universal",
             "location": "src/content/docs/**/*.{md,mdx}",
-            "pattern": "src/content/docs/@lang/@path"
+            "pattern": "src/content/docs/@lang/@path",
+            "ignore": [
+                "src/content/docs/en/**/*"
+            ]
         }
     ],
     "tracking": {

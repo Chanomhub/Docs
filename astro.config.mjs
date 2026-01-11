@@ -13,7 +13,7 @@ export default defineConfig({
 			locales: {
 				root: {
 					label: 'ไทย',
-					lang: 'en',
+					lang: 'th',
 				},
 				en: {
 					label: 'English',
@@ -44,6 +44,12 @@ export default defineConfig({
 					label: 'API Reference',
 					items: [
 						{ label: 'API', slug: 'reference/api' },
+					],
+				},
+				{
+					label: 'SDK',
+					items: [
+						{ label: '@chanomhub/sdk', slug: 'sdk' },
 					],
 				},
 			],

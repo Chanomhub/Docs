@@ -1,0 +1,27 @@
+# Crowdin configuration file
+# https://developer.crowdin.com/configuration-file/
+
+project_id_env: CROWDIN_PROJECT_ID
+api_token_env: CROWDIN_PERSONAL_TOKEN
+
+# Preserve MDX/Markdown formatting
+preserve_hierarchy: true
+
+files:
+  # Documentation content
+  - source: /src/content/docs/**/*.mdx
+    translation: /src/content/docs/%locale%/**/%original_file_name%
+    # Exclude already translated folders
+    ignore:
+      - /src/content/docs/en/**/*
+      - /src/content/docs/zh/**/*
+      - /src/content/docs/ja/**/*
+      - /src/content/docs/ko/**/*
+    # MDX/Markdown settings
+    type: mdx
+    # Don't translate code blocks
+    content_segmentation: true
+    translatable_elements:
+      - text
+    # Preserve frontmatter structure
+    escape_special_characters: false
