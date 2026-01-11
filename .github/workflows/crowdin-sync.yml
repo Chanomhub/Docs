@@ -24,11 +24,10 @@ jobs:
         with:
           # Upload sources
           upload_sources: true
-          upload_sources_args: '--no-progress'
           
           # Download translations
           download_translations: true
-          download_translations_args: '--all --no-progress'
+          download_translations_args: '--all'
           
           # Create PR with translations
           create_pull_request: true
