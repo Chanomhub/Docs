@@ -24,4 +24,4 @@ files:
     translatable_elements:
       - text
     # Preserve frontmatter structure
-    escape_special_characters: false
+    escape_special_characters: 0
