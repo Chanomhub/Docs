@@ -1,0 +1,241 @@
+---
+title: แก้ไขปัญหา ChanoX2
+description: รวบรวมปัญหาที่พบบ่อยและวิธีแก้ไขสำหรับ ChanoX2 รวมถึงปัญหาการติดตั้ง, การใช้งาน, Performance และ Linux เฉพาะ
+sidebar:
+  label: แก้ไขปัญหา
+  order: 4
+---
+
+รวบรวมปัญหาที่พบบ่อยและวิธีแก้ไข
+
+---
+
+## ปัญหาการติดตั้ง
+
+### Windows: "Windows protected your PC"
+
+**ปัญหา**: Windows SmartScreen แจ้งเตือนว่าแอปไม่รู้จัก
+
+**วิธีแก้**:
+
+1. คลิก **More info**
+2. คลิก **Run anyway**
+
+หรือปิด SmartScreen ชั่วคราว:
+
+1. เปิด **Windows Security**
+2. ไปที่ **App & browser control**
+3. ปิด **Check apps and files**
+
+---
+
+### macOS: "Can't be opened because it is from an unidentified developer"
+
+**ปัญหา**: Gatekeeper บล็อกแอป
+
+**วิธีแก้**:
+
+**วิธีที่ 1**: ผ่าน System Preferences
+
+1. เปิด **System Preferences** → **Security & Privacy**
+2. คลิก **Open Anyway** สำหรับ ChanoX2
+
+**วิธีที่ 2**: ใช้ Terminal
+
+```bash
+xattr -cr /Applications/ChanoX2.app
+```
+
+---
+
+### Linux: AppImage ไม่ทำงาน
+
+**ปัญหา**: AppImage เปิดไม่ได้
+
+**วิธีแก้**:
+
+1. ให้สิทธิ์ execute:
+
+```bash
+chmod +x ChanoX2-x.x.x.AppImage
+```
+
+2. ติดตั้ง FUSE (หากยังไม่มี):
+
+```bash
+# Ubuntu/Debian
+sudo apt install fuse libfuse2
+
+# Fedora
+sudo dnf install fuse fuse-libs
+```
+
+---
+
+## ปัญหาการใช้งาน
+
+### เกมไม่แสดงในรายการ
+
+**สาเหตุที่เป็นไปได้**:
+
+* โฟลเดอร์ไม่ได้ถูกเพิ่มใน Scan Folders
+* เกมถูกซ่อน
+* ไฟล์ executable ไม่ถูกต้อง
+
+**วิธีแก้**:
+
+1. ตรวจสอบ **Settings** → **Library** → **Scan Folders**
+2. ไปที่ **View** → **Show Hidden Games**
+3. ลองเพิ่มเกมด้วยตนเอง (**+** → **Add Game**)
+
+---
+
+### เกมเปิดไม่ได้
+
+**วิธีแก้ทีละขั้น**:
+
+1. **ตรวจสอบ executable**
+   * คลิกขวาที่เกม → **Properties**
+   * ตรวจสอบว่า path ถูกต้อง
+
+2. **ทดสอบเปิดโดยตรง**
+   * คลิกขวา → **Open Folder**
+   * ลองเปิดเกมโดยตรงจาก folder
+
+3. **สำหรับเกม Windows บน Linux**
+   * ตรวจสอบว่าเปิด Wine/Proton
+   * ไปที่ **Settings** → **Games** → **Windows Compatibility**
+
+4. **ตรวจสอบ Log**
+   * ไปที่ **Help** → **View Logs**
+   * มองหา error messages
+
+---
+
+### Engine ตรวจจับผิด
+
+**วิธีแก้**:
+
+1. คลิกขวาที่เกม → **Properties**
+2. ไปที่ tab **Engine**
+3. เลือก engine ที่ถูกต้องด้วยตนเอง
+
+---
+
+### รูปปกไม่แสดง
+
+**วิธีแก้**:
+
+1. **ดาวน์โหลดใหม่**
+   * คลิกขวาที่เกม → **Refresh Metadata**
+
+2. **เพิ่มด้วยตนเอง**
+   * คลิกขวา → **Properties** → **Cover**
+   * คลิก **Upload** และเลือกรูป
+
+3. **ล้าง Cache**
+   * **Settings** → **Data** → **Clear Image Cache**
+
+---
+
+## ปัญหา Performance
+
+### โปรแกรมช้า/Lag
+
+**วิธีแก้**:
+
+1. **ลด Animations**
+   * **Settings** → **General** → ปิด **Animations**
+
+2. **ปิด Hardware Acceleration** (หากมีปัญหากับ GPU)
+   * **Settings** → **Advanced** → ปิด **Hardware Acceleration**
+
+3. **Optimize Database**
+   * **Settings** → **Data** → **Optimize Database**
+
+4. **ล้าง Cache**
+   * **Settings** → **Data** → **Clear All Cache**
+
+---
+
+### ใช้ RAM มาก
+
+**สาเหตุ**: Library มีเกมจำนวนมากหรือรูปปกความละเอียดสูง
+
+**วิธีแก้**:
+
+1. ลดขนาด Grid ใน Grid View
+2. ใช้ List View แทน
+3. ลดจำนวนเกมที่แสดงต่อหน้า
+
+---
+
+## ปัญหา Linux เฉพาะ
+
+### Wine: เกมไม่ทำงาน
+
+**ขั้นตอนแก้ไข**:
+
+1. **ตรวจสอบ Wine version**
+   ```bash
+   wine --version
+   ```
+
+2. **ลองใช้ Winetricks**
+   * ไปที่ **Settings** → **Games** → **Winetricks**
+   * ติดตั้ง dependencies ที่จำเป็น เช่น `vcrun2019`, `dxvk`
+
+3. **ใช้ Proton แทน**
+   * **Settings** → **Games** → เลือก **Proton**
+
+---
+
+### เสียงไม่ทำงาน
+
+**วิธีแก้**:
+
+```bash
+# ติดตั้ง PulseAudio support สำหรับ Wine
+winetricks sound=pulse
+```
+
+---
+
+## การส่ง Bug Report
+
+หากยังไม่สามารถแก้ไขได้:
+
+1. **รวบรวมข้อมูล**
+   * ไปที่ **Help** → **Export Logs**
+   * บันทึกไฟล์ log
+
+2. **สร้าง Issue บน GitHub**
+   * ไปที่ [GitHub Issues](https://github.com/Chanomhub/ChanoX2/issues)
+   * คลิก **New Issue**
+   * แนบ log file และอธิบายปัญหา
+
+3. **ติดต่อ Discord**
+   * เข้าร่วม [Discord](https://discord.gg/chanomhub)
+   * ไปที่ช่อง #support
+
+---
+
+## FAQ
+
+### ChanoX2 ฟรีหรือเปล่า?
+
+ใช่ ChanoX2 เป็น open source และฟรี 100%
+
+### ข้อมูลเกมเก็บที่ไหน?
+
+* **Windows**: `%APPDATA%/ChanoX2`
+* **macOS**: `~/Library/Application Support/ChanoX2`
+* **Linux**: `~/.config/ChanoX2`
+
+### รองรับ Plugin หรือ Extension ไหม?
+
+ขณะนี้ยังไม่รองรับ แต่กำลังพัฒนาอยู่
+
+### มีแผนรองรับ Console games ไหม?
+
+มีแผนที่จะรองรับ emulator integration ในอนาคต
