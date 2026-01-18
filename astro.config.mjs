@@ -27,30 +27,15 @@ export default defineConfig({
 				{
 					label: 'เริ่มต้นใช้งาน',
 					translations: { en: 'Getting Started' },
-					items: [
-						{ label: 'คู่มือเริ่มต้น', slug: 'guides/getting-started', translations: { en: 'Getting Started Guide' } },
-					],
+					autogenerate: { directory: 'guides' },
 				},
 				{
 					label: 'ChanoX2',
-					items: [
-						{ label: 'เริ่มต้นใช้งาน', slug: 'chanox2/getting-started', translations: { en: 'Getting Started' } },
-						{ label: 'การติดตั้ง', slug: 'chanox2/installation', translations: { en: 'Installation' } },
-						{ label: 'การตั้งค่า', slug: 'chanox2/configuration', translations: { en: 'Configuration' } },
-						{ label: 'แก้ไขปัญหา', slug: 'chanox2/troubleshooting', translations: { en: 'Troubleshooting' } },
-					],
+					autogenerate: { directory: 'chanox2' },
 				},
 				{
 					label: 'API Reference',
-					items: [
-						{ label: 'API', slug: 'reference/api' },
-					],
-				},
-				{
-					label: 'SDK',
-					items: [
-						{ label: '@chanomhub/sdk', slug: 'sdk' },
-					],
+					autogenerate: { directory: 'reference' },
 				},
 			],
 		}),
