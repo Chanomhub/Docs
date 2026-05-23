@@ -1,0 +1,154 @@
+---
+
+---
+
+<div class="graphql-playground" id="playground">
+    <h2>GraphQL Playground</h2>
+    <div class="playground-layout">
+        <div class="query-section">
+            <h3>Query</h3>
+            <textarea id="query-input" placeholder="Query goes here..."
+            ></textarea>
+            <button id="run-query">RUN</button>
+        </div>
+        <div class="result-section">
+            <h3>Result</h3>
+            <pre id="result-output">Click RUN to see results...</pre>
+        </div>
+    </div>
+</div>
+
+<script>
+    const endpoint = "https://api.chanomhub.com/api/v2/graphql"; // Default endpoint, might need adjustment
+    const queryInput = document.getElementById(
+        "query-input",
+    ) as HTMLTextAreaElement;
+    const resultOutput = document.getElementById(
+        "result-output",
+    ) as HTMLElement;
+    const runBtn = document.getElementById("run-query");
+
+    // Listen for events from Schema Browser
+    document.addEventListener("set-graphql-query", (e: any) => {
+        if (queryInput) {
+            queryInput.value = e.detail.query;
+            document
+                .getElementById("playground")
+                ?.scrollIntoView({ behavior: "smooth" });
+        }
+    });
+
+    runBtn?.addEventListener("click", async () => {
+        const query = queryInput?.value;
+        if (!query) return;
+
+        resultOutput.textContent = "Loading...";
+        runBtn.setAttribute("disabled", "true");
+
+        try {
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ query }),
+            });
+
+            const result = await response.json();
+            resultOutput.textContent = JSON.stringify(result, null, 2);
+        } catch (error: any) {
+            resultOutput.textContent = `Error: ${error.message}`;
+        } finally {
+            runBtn.removeAttribute("disabled");
+        }
+    });
+
+    // Handle "Try it" buttons from GraphQlSchema
+    document.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.classList.contains("try-it-btn")) {
+            const query = target.getAttribute("data-query");
+            if (query && queryInput) {
+                queryInput.value = query;
+                document
+                    .getElementById("playground")
+                    ?.scrollIntoView({ behavior: "smooth" });
+            }
+        }
+    });
+</script>
+
+<style>
+    .graphql-playground {
+        margin-top: 4rem;
+        padding: 2rem;
+        background: var(--sl-color-gray-6);
+        border-radius: 0.5rem;
+        border: 1px solid var(--sl-color-gray-5);
+    }
+
+    .playground-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .playground-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .query-section,
+    .result-section {
+        display: flex;
+        flex-direction: column;
+    }
+
+    textarea {
+        min-height: 300px;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        font-family: "Fira Code", "Courier New", Courier, monospace;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        border: 1px solid var(--sl-color-gray-4);
+        resize: vertical;
+    }
+
+    pre {
+        min-height: 300px;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        overflow: auto;
+        margin: 0;
+        font-family: "Fira Code", "Courier New", Courier, monospace;
+        font-size: 0.9em;
+    }
+
+    #run-query {
+        margin-top: 1rem;
+        background: var(--sl-color-accent);
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        font-weight: bold;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+
+    #run-query:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    h3 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        color: var(--sl-color-gray-2);
+    }
+</style>

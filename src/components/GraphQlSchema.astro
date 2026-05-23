@@ -1,0 +1,485 @@
+---
+import schema from "../../v2_schema.json";
+
+const types = schema.__schema.types;
+
+const queryType = schema.__schema.queryType.name;
+const mutationType = schema.__schema.mutationType?.name;
+
+const sortedTypes = [...types].sort((a, b) => a.name.localeCompare(b.name));
+
+const getFieldType = (type: any): string => {
+    if (type.kind === "NON_NULL") {
+        return `${getFieldType(type.ofType)}!`;
+    }
+    if (type.kind === "LIST") {
+        return `[${getFieldType(type.ofType)}]`;
+    }
+    return `<a href="#type-${type.name}">${type.name}</a>`;
+};
+
+const getTypeName = (type: any): string => {
+    if (type.kind === "NON_NULL" || type.kind === "LIST") {
+        return getTypeName(type.ofType);
+    }
+    return type.name;
+};
+
+const isFieldLeaf = (fType: any) => {
+    const name = getTypeName(fType);
+    const tObj = types.find((t) => t.name === name);
+    return tObj?.kind === "SCALAR" || tObj?.kind === "ENUM";
+};
+
+const getArgPlaceholder = (argType: any) => {
+    const typeName = getTypeName(argType);
+    const typeObj = types.find((t) => t.name === typeName);
+
+    if (argType.kind === "LIST") return "[]";
+    if (typeObj?.kind === "INPUT_OBJECT") return "{}";
+    if (typeName === "Int" || typeName === "Float") return "0";
+    if (typeName === "Boolean") return "true";
+    if (typeObj?.kind === "ENUM")
+        return typeObj.enumValues?.[0]?.name || "VALUE";
+    return '""';
+};
+
+const objectTypes = sortedTypes.filter(
+    (t) => t.kind === "OBJECT" && !t.name.startsWith("__"),
+);
+const inputTypes = sortedTypes.filter((t) => t.kind === "INPUT_OBJECT");
+const enumTypes = sortedTypes.filter(
+    (t) => t.kind === "ENUM" && !t.name.startsWith("__"),
+);
+const scalarTypes = sortedTypes.filter(
+    (t) => t.kind === "SCALAR" && !t.name.startsWith("__"),
+);
+const unionTypes = sortedTypes.filter((t) => t.kind === "UNION");
+---
+
+<div class="graphql-schema">
+    <nav class="schema-nav">
+        <ul>
+            <li><a href="#queries">Queries</a></li>
+            {
+                mutationType && (
+                    <li>
+                        <a href="#mutations">Mutations</a>
+                    </li>
+                )
+            }
+            <li><a href="#objects">Objects</a></li>
+            <li><a href="#inputs">Inputs</a></li>
+            <li><a href="#enums">Enums</a></li>
+            <li><a href="#scalars">Scalars</a></li>
+        </ul>
+    </nav>
+
+    <section id="queries">
+        <h2>Queries</h2>
+        {
+            types
+                .find((t) => t.name === queryType)
+                ?.fields.map((field) => {
+                    const fieldTypeName = getTypeName(field.type);
+                    const fieldTypeObj = types.find(
+                        (t) => t.name === fieldTypeName,
+                    );
+                    const isLeaf =
+                        fieldTypeObj?.kind === "SCALAR" ||
+                        fieldTypeObj?.kind === "ENUM";
+
+                    const subFields = !isLeaf
+                        ? fieldTypeObj?.fields
+                              ?.slice(0, 3)
+                              .map((f) => {
+                                  const argStr =
+                                      f.args.length > 0
+                                          ? "(" +
+                                            f.args
+                                                .map(
+                                                    (a) =>
+                                                        `${a.name}: ${getArgPlaceholder(a.type)}`,
+                                                )
+                                                .join(", ") +
+                                            ")"
+                                          : "";
+                                  return isFieldLeaf(f.type)
+                                      ? `${f.name}${argStr}`
+                                      : `${f.name}${argStr} {\n      id\n    }`;
+                              })
+                              .join("\n    ") || "id"
+                        : "";
+
+                    const selectionSet = isLeaf
+                        ? ""
+                        : ` {
+    ${subFields}
+  }`;
+                    const exampleQuery = `query {
+  ${field.name}${field.args.length > 0 ? "(" + field.args.map((a) => `${a.name}: ${getArgPlaceholder(a.type)}`).join(", ") + ")" : ""}${selectionSet}
+}`;
+                    return (
+                        <div class="field-item">
+                            <div class="field-header">
+                                <h3 id={`query-${field.name}`}>{field.name}</h3>
+                                <button
+                                    class="try-it-btn"
+                                    data-query={exampleQuery}
+                                >
+                                    Try it
+                                </button>
+                            </div>
+                            {field.description && (
+                                <p class="description">{field.description}</p>
+                            )}
+
+                            {field.args.length > 0 && (
+                                <div class="args">
+                                    <h4>Arguments</h4>
+                                    <ul>
+                                        {field.args.map((arg) => (
+                                            <li>
+                                                <code>{arg.name}</code>:{" "}
+                                                <Fragment
+                                                    set:html={getFieldType(
+                                                        arg.type,
+                                                    )}
+                                                />
+                                                {arg.description && (
+                                                    <span class="arg-desc">
+                                                        {" "}
+                                                        - {arg.description}
+                                                    </span>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            <div class="return-type">
+                                <strong>Returns:</strong>{" "}
+                                <Fragment set:html={getFieldType(field.type)} />
+                            </div>
+                        </div>
+                    );
+                })
+        }
+    </section>
+
+    {
+        mutationType && (
+            <section id="mutations">
+                <h2>Mutations</h2>
+                {types
+                    .find((t) => t.name === mutationType)
+                    ?.fields.map((field) => {
+                        const fieldTypeName = getTypeName(field.type);
+                        const fieldTypeObj = types.find(
+                            (t) => t.name === fieldTypeName,
+                        );
+                        const isLeaf =
+                            fieldTypeObj?.kind === "SCALAR" ||
+                            fieldTypeObj?.kind === "ENUM";
+
+                        const subFields = !isLeaf
+                            ? fieldTypeObj?.fields
+                                  ?.slice(0, 3)
+                                  .map((f) => {
+                                      const argStr =
+                                          f.args.length > 0
+                                              ? "(" +
+                                                f.args
+                                                    .map(
+                                                        (a) =>
+                                                            `${a.name}: ${getArgPlaceholder(a.type)}`,
+                                                    )
+                                                    .join(", ") +
+                                                ")"
+                                              : "";
+                                      return isFieldLeaf(f.type)
+                                          ? `${f.name}${argStr}`
+                                          : `${f.name}${argStr} {\n      id\n    }`;
+                                  })
+                                  .join("\n    ") || "id"
+                            : "";
+
+                        const selectionSet = isLeaf
+                            ? ""
+                            : ` {
+    ${subFields}
+  }`;
+                        const exampleMutation = `mutation {
+  ${field.name}${field.args.length > 0 ? "(" + field.args.map((a) => `${a.name}: ${getArgPlaceholder(a.type)}`).join(", ") + ")" : ""}${selectionSet}
+}`;
+                        return (
+                            <div class="field-item">
+                                <div class="field-header">
+                                    <h3 id={`mutation-${field.name}`}>
+                                        {field.name}
+                                    </h3>
+                                    <button
+                                        class="try-it-btn"
+                                        data-query={exampleMutation}
+                                    >
+                                        Try it
+                                    </button>
+                                </div>
+                                {field.description && (
+                                    <p class="description">
+                                        {field.description}
+                                    </p>
+                                )}
+
+                                {field.args.length > 0 && (
+                                    <div class="args">
+                                        <h4>Arguments</h4>
+                                        <ul>
+                                            {field.args.map((arg) => (
+                                                <li>
+                                                    <code>{arg.name}</code>:{" "}
+                                                    <Fragment
+                                                        set:html={getFieldType(
+                                                            arg.type,
+                                                        )}
+                                                    />
+                                                    {arg.description && (
+                                                        <span class="arg-desc">
+                                                            {" "}
+                                                            - {arg.description}
+                                                        </span>
+                                                    )}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                                <div class="return-type">
+                                    <strong>Returns:</strong>{" "}
+                                    <Fragment
+                                        set:html={getFieldType(field.type)}
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })}
+            </section>
+        )
+    }
+
+    <section id="objects">
+        <h2>Objects</h2>
+        {
+            objectTypes.map((type) => (
+                <div class="type-card" id={`type-${type.name}`}>
+                    <h3>{type.name}</h3>
+                    {type.description && <p>{type.description}</p>}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {type.fields.map((field) => (
+                                <tr>
+                                    <td>
+                                        <code>{field.name}</code>
+                                    </td>
+                                    <td>
+                                        <Fragment
+                                            set:html={getFieldType(field.type)}
+                                        />
+                                    </td>
+                                    <td>{field.description || "-"}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ))
+        }
+    </section>
+
+    <section id="inputs">
+        <h2>Input Objects</h2>
+        {
+            inputTypes.map((type) => (
+                <div class="type-card" id={`type-${type.name}`}>
+                    <h3>{type.name}</h3>
+                    {type.description && <p>{type.description}</p>}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {type.inputFields.map((field) => (
+                                <tr>
+                                    <td>
+                                        <code>{field.name}</code>
+                                    </td>
+                                    <td>
+                                        <Fragment
+                                            set:html={getFieldType(field.type)}
+                                        />
+                                    </td>
+                                    <td>{field.description || "-"}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ))
+        }
+    </section>
+
+    <section id="enums">
+        <h2>Enums</h2>
+        {
+            enumTypes.map((type) => (
+                <div class="type-card" id={`type-${type.name}`}>
+                    <h3>{type.name}</h3>
+                    {type.description && <p>{type.description}</p>}
+                    <ul>
+                        {type.enumValues.map((value) => (
+                            <li>
+                                <code>{value.name}</code>
+                                {value.description && (
+                                    <span> - {value.description}</span>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            ))
+        }
+    </section>
+
+    <section id="scalars">
+        <h2>Scalars</h2>
+        <div class="scalar-list">
+            {
+                scalarTypes.map((type) => (
+                    <div class="scalar-item" id={`type-${type.name}`}>
+                        <strong>{type.name}</strong>:{" "}
+                        {type.description || "No description"}
+                    </div>
+                ))
+            }
+        </div>
+    </section>
+</div>
+
+<style>
+    .graphql-schema {
+        margin-top: 2rem;
+    }
+
+    .schema-nav {
+        position: sticky;
+        top: 5rem;
+        background: var(--sl-color-bg);
+        padding: 1rem 0;
+        z-index: 10;
+        border-bottom: 1px solid var(--sl-color-gray-5);
+        margin-bottom: 2rem;
+    }
+
+    .schema-nav ul {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        gap: 1.5rem;
+        margin: 0;
+        flex-wrap: wrap;
+    }
+
+    .schema-nav a {
+        text-decoration: none;
+        font-weight: bold;
+        color: var(--sl-color-ascent-high);
+    }
+
+    .type-card {
+        border: 1px solid var(--sl-color-gray-5);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .field-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .try-it-btn {
+        background: var(--sl-color-accent);
+        color: white;
+        border: none;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        font-size: 0.8em;
+        font-weight: bold;
+        transition: opacity 0.2s;
+    }
+
+    .try-it-btn:hover {
+        opacity: 0.8;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    th,
+    td {
+        text-align: left;
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--sl-color-gray-5);
+    }
+
+    code {
+        background: var(--sl-color-gray-6);
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+    }
+
+    .description {
+        color: var(--sl-color-gray-3);
+        font-style: italic;
+    }
+
+    .arg-desc {
+        color: var(--sl-color-gray-3);
+        font-size: 0.9em;
+    }
+
+    .return-type {
+        margin-top: 0.5rem;
+        font-size: 0.95em;
+    }
+
+    h2 {
+        border-bottom: 2px solid var(--sl-color-accent);
+        padding-bottom: 0.5rem;
+        margin-top: 3rem;
+    }
+
+    .scalar-item {
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        background: var(--sl-color-gray-6);
+        border-radius: 0.25rem;
+    }
+</style>
