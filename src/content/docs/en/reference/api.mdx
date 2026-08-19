@@ -1,0 +1,201 @@
+---
+title: API Reference
+description: Complete REST API, GraphQL, RSS, and Developer API specification for ChanomHub users and developers
+---
+
+import { Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+
+This guide outlines all public and developer APIs provided by the **ChanomHub** platform for querying, integrating, and managing articles, mods, and developer features.
+
+## Overview
+
+ChanomHub APIs are accessible via multiple endpoints:
+
+- **Base URL (REST)**: `https://api.chanomhub.com/api` (or `http://localhost:3000/api` for local development)
+- **GraphQL Endpoint**: `https://api.chanomhub.com/api/graphql`
+- **Interactive Swagger Docs**: [https://api.chanomhub.com/api-docs](https://api.chanomhub.com/api-docs)
+
+---
+
+## 1. Authentication
+
+Public endpoints (listing articles, searching mods, reading public profiles) do not require authentication. For write operations or accessing personal user resources, include a Bearer token in your HTTP request headers:
+
+```http
+Authorization: Bearer <YOUR_ACCESS_TOKEN>
+```
+
+### Auth Endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/auth/sign-in/email` | `POST` | Sign in with Email and Password |
+| `/api/auth/sign-up/email` | `POST` | Register a new user account |
+| `/api/auth/sign-out` | `POST` | Sign out / Invalidate current session |
+| `/api/auth/sign-in/social` | `GET` | Initiate OAuth login (`google`, `discord`, `github`) |
+
+---
+
+## 2. Articles API
+
+Search, fetch, create, and manage game articles and publications.
+
+### 2.1 Fetch Articles List
+`GET /api/articles`
+
+**Query Parameters:**
+- `page` (number): Target page number ( Default: `1` )
+- `limit` (number): Number of items per page ( Default: `20` )
+- `category` (string): Filter by Category Slug
+- `tag` (string): Filter by Tag Slug
+- `search` (string): Search query string for title/content
+- `sortBy` (string): Sorting criteria (`latest`, `popular`, `trending`)
+
+<Tabs>
+  <TabItem label="cURL">
+```bash
+curl -X GET "https://api.chanomhub.com/api/articles?page=1&limit=10&sortBy=latest"
+```
+  </TabItem>
+  <TabItem label="TypeScript / JavaScript">
+```typescript
+const res = await fetch('https://api.chanomhub.com/api/articles?page=1&limit=10');
+const data = await res.json();
+console.log(data.articles, data.articlesCount);
+```
+  </TabItem>
+</Tabs>
+
+### 2.2 Latest & Popular Articles
+- `GET /api/articles/latest` — Get newly published articles
+- `GET /api/articles/popular` — Get top trending articles
+
+### 2.3 Article Details
+`GET /api/articles/:slug`
+
+**Response Example:**
+```json
+{
+  "article": {
+    "id": 102,
+    "title": "Example Game Mod Article",
+    "slug": "example-game-mod",
+    "description": "Short description of the article...",
+    "body": "Article body in Markdown format...",
+    "ver": "1.2.0",
+    "engine": "RENPY",
+    "views": 1540,
+    "ratings": 4.8,
+    "tags": ["Visual Novel", "Mod"],
+    "createdAt": "2026-08-19T10:00:00.000Z"
+  }
+}
+```
+
+### 2.4 Track Article Views
+`POST /api/articles/:slug/view`
+- Increments view count when a user views the article page.
+
+### 2.5 Article Management (Authenticated)
+- `POST /api/articles` — Create a new article draft/submission
+- `PUT /api/articles/:slug` — Update an existing article
+- `POST /api/articles/:slug/transfer-request` — Request ownership transfer of an article to another user
+- `POST /api/articles/:slug/favorite` — Bookmark an article
+- `DELETE /api/articles/:slug/favorite` — Remove an article from bookmarks
+
+---
+
+## 3. Comments API
+
+| Endpoint | Method | Auth | Description |
+|---|---|---|---|
+| `/api/articles/:slug/comments` | `GET` | ❌ | Retrieve comment tree for an article |
+| `/api/articles/:slug/comments` | `POST` | ✅ | Post a new comment or reply |
+| `/api/articles/:slug/comments/:id` | `DELETE` | ✅ | Delete your comment |
+
+---
+
+## 4. Mods & Engines API
+
+Query game mods, categories, and game engines.
+
+- `GET /api/mods` — Search and filter game mods
+- `GET /api/mods/:id` — Retrieve specific mod details by ID
+- `GET /api/mod-categories` — Fetch list of mod categories
+- `GET /api/engines` — Fetch list of supported game engines (e.g. Ren'Py, Unity, RPG Maker)
+
+---
+
+## 5. Downloads API
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/downloads/:documentId` | `GET` | Generate secure download token and links |
+| `/api/downloads/redirect` | `GET` | Handle ad/redirect download links |
+
+---
+
+## 6. Taxonomy APIs (Tags, Categories & Platforms)
+
+- `GET /api/tags` — List all article tags with usage counts
+- `GET /api/categories` — List available categories
+- `GET /api/platforms` — List game platforms (PC, Mobile, Android, Switch, etc.)
+
+---
+
+## 7. Developer Portal & API Verification
+
+Manage developer status and verification tokens.
+
+### Endpoints
+- `GET /api/developer/list` — List all verified developers
+- `GET /api/developer/profile` (Auth) — Retrieve authenticated user's developer profile
+- `POST /api/developer/apply` (Auth) — Submit developer profile application
+- `POST /api/developer/generate-token` (Auth) — Generate a 1-time verification token
+- `POST /api/developer/verify/:token` (Auth) — Verify token
+- `PATCH /api/developer/profile` (Auth) — Update developer profile details
+
+---
+
+## 8. AI Utilities API
+
+Helper endpoints for content creators and developer integrations:
+
+- `POST /api/ai/suggest-tags` — Automatically suggest relevant tags for content
+- `POST /api/ai/validate-tag` — Validate tag syntax and relevance
+
+---
+
+## 9. RSS Feeds
+
+ChanomHub provides RSS feeds to subscribe to news and content updates:
+
+- **Platform RSS Feed**: `/platforms/:slug/rss`
+  - *Example*: `https://chanomhub.com/en/platforms/pc/rss`
+- **Tag RSS Feed**: `/tag/:slug/rss`
+  - *Example*: `https://chanomhub.com/en/tag/visual-novel/rss`
+
+---
+
+## 10. GraphQL API
+
+The GraphQL endpoint allows client applications to query flexible data schemas.
+
+- **Endpoint**: `/api/graphql`
+- **Supported HTTP Methods**: `POST`, `QUERY`
+
+Explore the full schema via the interactive [GraphQL Schema Browser](/en/reference/graphql-schema/).
+
+---
+
+## HTTP Status Codes
+
+| Status Code | Meaning | Description |
+|---|---|---|
+| `200 OK` | Success | Request succeeded |
+| `201 Created` | Created | Resource successfully created |
+| `400 Bad Request` | Bad Request | Invalid inputs or malformed body |
+| `401 Unauthorized` | Unauthorized | Bearer token required in HTTP Header |
+| `403 Forbidden` | Forbidden | Insufficient permissions for operation |
+| `404 Not Found` | Not Found | Requested slug or resource not found |
+| `500 Internal Error` | Internal Server Error | Server-side exception |
