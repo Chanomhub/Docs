@@ -1,6 +1,6 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "chanomhub-docs",
+    "name": "docs-chanomhub",
     "compatibility_date": "2026-01-08",
     "assets": {
         "directory": "./dist"
