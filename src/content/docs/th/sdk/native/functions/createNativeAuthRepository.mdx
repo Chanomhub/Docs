@@ -1,0 +1,23 @@
+---
+title: "Function: createNativeAuthRepository()"
+description: "```ts"
+---
+
+```ts
+function createNativeAuthRepository(fetcher, _config): NativeAuthRepository;
+```
+
+Defined in: [repositories/authRepository.native.ts:122](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/repositories/authRepository.native.ts#L122)
+
+Creates a React Native auth repository for native OAuth operations
+
+## Parameters
+
+| Parameter | Type                                                           | Description                                 |
+| --------- | -------------------------------------------------------------- | ------------------------------------------- |
+| `fetcher` | <`T`>(`endpoint`, `options`) => `Promise`<`RestResponse`<`T`>> | REST API fetcher                            |
+| `_config` | [`ChanomhubConfig`](/api/index/interfaces/ChanomhubConfig.mdx) | SDK configuration (reserved for future use) |
+
+## Returns
+
+[`NativeAuthRepository`](/api/native/interfaces/NativeAuthRepository.mdx)

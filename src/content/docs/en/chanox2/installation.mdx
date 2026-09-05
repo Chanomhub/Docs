@@ -1,0 +1,126 @@
+---
+title: การติดตั้ง ChanoX2
+description: คู่มือการติดตั้ง ChanoX2 สำหรับทุกแพลตฟอร์ม รวมถึง Windows, macOS และ Linux พร้อมวิธีแก้ไขปัญหาการติดตั้ง
+sidebar:
+  label: การติดตั้ง
+  order: 2
+---
+
+คู่มือนี้จะแนะนำวิธีการติดตั้ง ChanoX2 สำหรับทุกแพลตฟอร์ม
+
+## ความต้องการของระบบ
+
+| ระบบปฏิบัติการ | ความต้องการขั้นต่ำ                                      |
+| -------------- | ------------------------------------------------------- |
+| **Windows**    | Windows 10 (64-bit) หรือสูงกว่า                         |
+| **macOS**      | macOS 10.15 (Catalina) หรือสูงกว่า                      |
+| **Linux**      | Ubuntu 20.04, Fedora 34, หรือ distro ที่รองรับ AppImage |
+
+**ข้อกำหนดทั่วไป:**
+
+* **RAM**: 4 GB หรือมากกว่า (แนะนำ 8 GB)
+* **พื้นที่ว่าง**: 200 MB สำหรับตัวโปรแกรม
+* **หน้าจอ**: 1280x720 ขึ้นไป
+
+---
+
+## Windows
+
+### วิธีที่ 1: ติดตั้งด้วย Installer (.exe)
+
+1. **ดาวน์โหลด** ไฟล์ติดตั้งจาก [หน้าดาวน์โหลด](/chanox2)
+2. เลือก `ChanoX2-Setup-x.x.x.exe`
+3. เปิดไฟล์และทำตามขั้นตอน:
+   * คลิก **Next** เพื่อเริ่มการติดตั้ง
+   * เลือกโฟลเดอร์ที่ต้องการติดตั้ง (แนะนำให้ใช้ค่าเริ่มต้น)
+   * คลิก **Install**
+   * รอจนเสร็จสิ้น แล้วคลิก **Finish**
+
+> **หมายเหตุ**: หาก Windows SmartScreen แสดงคำเตือน ให้คลิก "More info" แล้วเลือก "Run anyway"
+
+---
+
+## macOS
+
+### การติดตั้งด้วย DMG
+
+1. **ดาวน์โหลด** ไฟล์ `.dmg` จาก [หน้าดาวน์โหลด](/chanox2)
+2. เปิดไฟล์ DMG ที่ดาวน์โหลดมา
+3. ลาก **ChanoX2** ไปยังโฟลเดอร์ **Applications**
+4. เปิดแอปจาก Applications หรือ Launchpad
+
+### ปัญหา Gatekeeper
+
+หาก macOS แสดงข้อความ "ChanoX2 can't be opened because it is from an unidentified developer":
+
+1. เปิด **System Preferences** → **Security & Privacy**
+2. ใน tab **General** จะเห็นข้อความเกี่ยวกับ ChanoX2
+3. คลิก **Open Anyway**
+
+หรือใช้ Terminal:
+
+```bash
+xattr -cr /Applications/ChanoX2.app
+```
+
+---
+
+## Linux
+
+ChanoX2 รองรับหลายรูปแบบการติดตั้งบน Linux:
+
+### AppImage (แนะนำ)
+
+AppImage ทำงานได้บนเกือบทุก Linux distro โดยไม่ต้องติดตั้ง:
+
+```bash
+# ดาวน์โหลดและให้สิทธิ์ execute
+chmod +x ChanoX2-x.x.x.AppImage
+
+# เรียกใช้งาน
+./ChanoX2-x.x.x.AppImage
+```
+
+> **เคล็ดลับ**: ใช้ [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) เพื่อ integrate AppImage เข้ากับ Desktop menu
+
+### Debian/Ubuntu (.deb)
+
+```bash
+# ติดตั้งด้วย dpkg
+sudo dpkg -i chanox2_x.x.x_amd64.deb
+
+# แก้ไข dependencies หากจำเป็น
+sudo apt-get install -f
+```
+
+### Fedora/RHEL (.rpm)
+
+```bash
+sudo rpm -i chanox2-x.x.x.x86_64.rpm
+```
+
+### Flatpak
+
+```bash
+# ติดตั้งจาก Flathub
+flatpak install --user ChanoX2-x.x.x-x86_64.flatpak
+
+
+# เรียกใช้งาน
+flatpak run com.chanomhub.chanox2
+```
+
+---
+
+## การอัปเดต
+
+ChanoX2 รองรับการอัปเดตอัตโนมัติ:
+
+1. เมื่อมีเวอร์ชันใหม่ จะมีการแจ้งเตือนในโปรแกรม
+2. คลิก **Update Now** เพื่อดาวน์โหลดและติดตั้ง
+3. โปรแกรมจะ restart เองหลังอัปเดตเสร็จ
+
+**การอัปเดตด้วยตนเอง:**
+
+* ดาวน์โหลดเวอร์ชันใหม่จาก [หน้าดาวน์โหลด](/chanox2)
+* ติดตั้งทับเวอร์ชันเดิม (ข้อมูลจะไม่หาย)
