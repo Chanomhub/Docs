@@ -1,0 +1,37 @@
+---
+title: "@chanomhub/sdk"
+description: เอกสารอ้างอิง API สำหรับ @chanomhub/sdk
+---
+
+# @chanomhub/sdk
+
+SDK อย่างเป็นทางการสำหรับ ChanomHub API
+
+## โมดูล
+
+| โมดูล             | คำอธิบาย                              |
+| ----------------- | ------------------------------------- |
+| [index](index/)   | โมดูลหลัก - Client, Types, และ Errors |
+| [native](native/) | สำหรับ React Native                   |
+| [next](next/)     | สำหรับ Next.js                        |
+
+## การติดตั้ง
+
+```bash
+npm install @chanomhub/sdk
+# หรือ
+bun add @chanomhub/sdk
+```
+
+## การใช้งานเบื้องต้น
+
+```typescript
+import { createChanomhubClient } from '@chanomhub/sdk';
+
+const client = createChanomhubClient({
+  baseUrl: 'https://api.chanomhub.com',
+});
+
+// ดึงรายการบทความ
+const articles = await client.articles.list();
+```
