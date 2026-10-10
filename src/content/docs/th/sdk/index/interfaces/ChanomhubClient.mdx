@@ -1,0 +1,20 @@
+---
+title: "Interface: ChanomhubClient"
+description: Chanomhub SDK Client interface
+---
+
+Defined in: [index.ts:56](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/index.ts#L56)
+
+Chanomhub SDK Client interface
+
+## Properties
+
+| Property                         | Type                                                                                                                     | Description                                                    | Defined in                                                                                                           |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| <a id="articles" /> `articles`   | `ArticleRepository`                                                                                                      | Article operations                                             | [index.ts:58](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/index.ts#L58) |
+| <a id="auth" /> `auth`           | `AuthRepository`                                                                                                         | Authentication operations (requires Supabase config for OAuth) | [index.ts:66](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/index.ts#L66) |
+| <a id="config" /> `config`       | [`ChanomhubConfig`](/api/index/interfaces/ChanomhubConfig.mdx)                                                           | SDK configuration                                              | [index.ts:70](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/index.ts#L70) |
+| <a id="favorites" /> `favorites` | `FavoritesRepository`                                                                                                    | Favorites operations                                           | [index.ts:60](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/index.ts#L60) |
+| <a id="graphql" /> `graphql`     | <`T`>(`query`, `variables`, `options`) => `Promise`<[`GraphQLResponse`](/api/index/interfaces/GraphQLResponse.mdx)<`T`>> | Raw GraphQL fetcher for custom queries                         | [index.ts:68](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/index.ts#L68) |
+| <a id="search" /> `search`       | `SearchRepository`                                                                                                       | Search operations                                              | [index.ts:64](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/index.ts#L64) |
+| <a id="users" /> `users`         | `UsersRepository`                                                                                                        | User/Profile operations                                        | [index.ts:62](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/index.ts#L62) |
