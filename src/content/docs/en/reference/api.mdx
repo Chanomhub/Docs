@@ -1,55 +1,57 @@
 ---
-title: API Reference
-description: Complete REST API, GraphQL, RSS, and Developer API specification for ChanomHub users and developers
+title: API Reference (เอกสารอ้างอิง API)
+description: รายละเอียดและข้อกำหนด REST API, GraphQL, RSS และ Developer APIs ของ ChanomHub สำหรับผู้ใช้และนักพัฒนา
 ---
 
 import { Tabs, TabItem, Badge } from '@astrojs/starlight/components';
 
-This guide outlines all public and developer APIs provided by the **ChanomHub** platform for querying, integrating, and managing articles, mods, and developer features.
+คู่มือฉบับนี้รวบรวม API ทั้งหมดที่ผู้ใช้และนักพัฒนาสามารถใช้งานได้บนแพลตฟอร์ม **ChanomHub** เพื่อเชื่อมต่อ ค้นหา ดึงข้อมูลบทความ ม็อด (Mods) หรือผสานรวมบริการต่างๆ
 
-## Overview
+## ภาพรวมระบบ API (Overview)
 
-ChanomHub APIs are accessible via multiple endpoints:
+ChanomHub ให้บริการ API ผ่านหลากหลายรูปแบบตามการใช้งาน:
 
-- **Base URL (REST)**: `https://api.chanomhub.com/api` (or `http://localhost:3000/api` for local development)
-- **GraphQL Endpoint**: `https://api.chanomhub.com/api/graphql`
-- **Interactive Swagger Docs**: [https://api.chanomhub.com/api-docs](https://api.chanomhub.com/api-docs)
+* **Base URL (REST)**: `https://api.chanomhub.com/api` (หรือ `http://localhost:3000/api` สำหรับ Local)
+* **GraphQL Endpoint**: `https://api.chanomhub.com/api/graphql`
+* **Swagger Documentation**: [https://api.chanomhub.com/api-docs](https://api.chanomhub.com/api-docs)
 
 ---
 
-## 1. Authentication
+## 1. การยืนยันตัวตน (Authentication)
 
-Public endpoints (listing articles, searching mods, reading public profiles) do not require authentication. For write operations or accessing personal user resources, include a Bearer token in your HTTP request headers:
+การใช้งาน API ส่วนใหญ่สำหรับดึงข้อมูลสาธารณะ (เช่น รายชื่อบทความ, ม็อด, ค้นหา) ไม่จำเป็นต้องใช้ Token แต่หากต้องการดำเนินการจัดการข้อมูลส่วนตัว หรือส่งบทความ จะต้องระบุ HTTP Header:
 
 ```http
 Authorization: Bearer <YOUR_ACCESS_TOKEN>
 ```
 
-### Auth Endpoints
+### การเข้าสู่ระบบ / ลงทะเบียน (Auth Endpoints)
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/auth/sign-in/email` | `POST` | Sign in with Email and Password |
-| `/api/auth/sign-up/email` | `POST` | Register a new user account |
-| `/api/auth/sign-out` | `POST` | Sign out / Invalidate current session |
-| `/api/auth/sign-in/social` | `GET` | Initiate OAuth login (`google`, `discord`, `github`) |
+| Endpoint                   | Method | คำอธิบาย                                                        |
+| -------------------------- | ------ | --------------------------------------------------------------- |
+| `/api/auth/sign-in/email`  | `POST` | เข้าสู่ระบบด้วย Email และ Password                              |
+| `/api/auth/sign-up/email`  | `POST` | สมัครสมาชิกใหม่ด้วย Email                                       |
+| `/api/auth/sign-out`       | `POST` | ออกจากระบบ (Invalidate Session)                                 |
+| `/api/auth/sign-in/social` | `GET`  | เข้าสู่ระบบผ่าน Social Provider (`google`, `discord`, `github`) |
 
 ---
 
-## 2. Articles API
+## 2. API สำหรับบทความ (Articles API)
 
-Search, fetch, create, and manage game articles and publications.
+จัดการ ดึงข้อมูล และค้นหาบทความเกมหรือเนื้อหาในแพลตฟอร์ม
 
-### 2.1 Fetch Articles List
+### 2.1 ดึงรายการบทความ (List Articles)
+
 `GET /api/articles`
 
 **Query Parameters:**
-- `page` (number): Target page number ( Default: `1` )
-- `limit` (number): Number of items per page ( Default: `20` )
-- `category` (string): Filter by Category Slug
-- `tag` (string): Filter by Tag Slug
-- `search` (string): Search query string for title/content
-- `sortBy` (string): Sorting criteria (`latest`, `popular`, `trending`)
+
+* `page` (number): หน้าที่ต้องการ ( Default: `1` )
+* `limit` (number): จำนวนรายการต่อหน้า ( Default: `20` )
+* `category` (string): กรองตาม Category Slug
+* `tag` (string): กรองตาม Tag Slug
+* `search` (string): คำค้นหาในชื่อหรือเนื้อหา
+* `sortBy` (string): การเรียงลำดับ (`latest`, `popular`, `trending`)
 
 <Tabs>
   <TabItem label="cURL">
@@ -66,22 +68,25 @@ console.log(data.articles, data.articlesCount);
   </TabItem>
 </Tabs>
 
-### 2.2 Latest & Popular Articles
-- `GET /api/articles/latest` — Get newly published articles
-- `GET /api/articles/popular` — Get top trending articles
+### 2.2 บทความมาใหม่ & ยอดนิยม
 
-### 2.3 Article Details
+* `GET /api/articles/latest` — ดึงบทความที่เพิ่งเผยแพร่ล่าสุด
+* `GET /api/articles/popular` — ดึงบทความยอดฮิตที่มียอดอ่านสูง
+
+### 2.3 อ่านรายละเอียดบทความ (Get Article Detail)
+
 `GET /api/articles/:slug`
 
 **Response Example:**
+
 ```json
 {
   "article": {
     "id": 102,
-    "title": "Example Game Mod Article",
+    "title": "ตัวอย่างบทความเกมม็อด",
     "slug": "example-game-mod",
-    "description": "Short description of the article...",
-    "body": "Article body in Markdown format...",
+    "description": "คำอธิบายย่อบทความ...",
+    "body": "เนื้อหาบทความแบบ Markdown หรือ Rich Text...",
     "ver": "1.2.0",
     "engine": "RENPY",
     "views": 1540,
@@ -92,110 +97,114 @@ console.log(data.articles, data.articlesCount);
 }
 ```
 
-### 2.4 Track Article Views
+### 2.4 เพิ่มยอดเข้าชม (Increment View)
+
 `POST /api/articles/:slug/view`
-- Increments view count when a user views the article page.
 
-### 2.5 Article Management (Authenticated)
-- `POST /api/articles` — Create a new article draft/submission
-- `PUT /api/articles/:slug` — Update an existing article
-- `POST /api/articles/:slug/transfer-request` — Request ownership transfer of an article to another user
-- `POST /api/articles/:slug/favorite` — Bookmark an article
-- `DELETE /api/articles/:slug/favorite` — Remove an article from bookmarks
+* ใช้สำหรับบันทึกการอ่านบทความเมื่อผู้ใช้เปิดอ่านหน้าบทความ
 
----
+### 2.5 จัดการบทความ (Authenticated)
 
-## 3. Comments API
-
-| Endpoint | Method | Auth | Description |
-|---|---|---|---|
-| `/api/articles/:slug/comments` | `GET` | ❌ | Retrieve comment tree for an article |
-| `/api/articles/:slug/comments` | `POST` | ✅ | Post a new comment or reply |
-| `/api/articles/:slug/comments/:id` | `DELETE` | ✅ | Delete your comment |
+* `POST /api/articles` — สร้างบทความใหม่ (Draft/Submission)
+* `PUT /api/articles/:slug` — แก้ไขเนื้อหาบทความของผู้ใช้
+* `POST /api/articles/:slug/transfer-request` — ส่งคำขอโอนสิทธิ์ความเป็นเจ้าของบทความไปยังผู้ใช้อื่น
+* `POST /api/articles/:slug/favorite` — เพิ่มบทความเข้ารายการโปรด (Bookmark)
+* `DELETE /api/articles/:slug/favorite` — ยกเลิกบทความในรายการโปรด
 
 ---
 
-## 4. Mods & Engines API
+## 3. API สำหรับความคิดเห็น (Comments API)
 
-Query game mods, categories, and game engines.
-
-- `GET /api/mods` — Search and filter game mods
-- `GET /api/mods/:id` — Retrieve specific mod details by ID
-- `GET /api/mod-categories` — Fetch list of mod categories
-- `GET /api/engines` — Fetch list of supported game engines (e.g. Ren'Py, Unity, RPG Maker)
-
----
-
-## 5. Downloads API
-
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/downloads/:documentId` | `GET` | Generate secure download token and links |
-| `/api/downloads/redirect` | `GET` | Handle ad/redirect download links |
+| Endpoint                           | Method   | Auth | คำอธิบาย                             |
+| ---------------------------------- | -------- | ---- | ------------------------------------ |
+| `/api/articles/:slug/comments`     | `GET`    | ❌    | ดึงรายการความคิดเห็นทั้งหมดของบทความ |
+| `/api/articles/:slug/comments`     | `POST`   | ✅    | แสดงความคิดเห็น หรือตอบกลับ (Reply)  |
+| `/api/articles/:slug/comments/:id` | `DELETE` | ✅    | ลบความคิดเห็นของผู้ใช้เอง            |
 
 ---
 
-## 6. Taxonomy APIs (Tags, Categories & Platforms)
+## 4. API ม็อดและเอนจินเกม (Mods & Engines API)
 
-- `GET /api/tags` — List all article tags with usage counts
-- `GET /api/categories` — List available categories
-- `GET /api/platforms` — List game platforms (PC, Mobile, Android, Switch, etc.)
+สำหรับค้นหาม็อด ดึงหมวดหมู่ม็อด และข้อมูล Engine ของเกม
+
+* `GET /api/mods` — ค้นหาและกรองรายการม็อดทั้งหมด
+* `GET /api/mods/:id` — ดึงข้อมูลรายละเอียดม็อดเฉพาะ ID
+* `GET /api/mod-categories` — ดึงรายชื่อหมวดหมู่ม็อดทั้งหมด
+* `GET /api/engines` — ดึงรายชื่อ Game Engines ที่รองรับ (เช่น Ren'Py, Unity, RPG Maker)
+
+---
+
+## 5. API ดาวน์โหลดไฟล์ (Downloads API)
+
+| Endpoint                     | Method | คำอธิบาย                                                      |
+| ---------------------------- | ------ | ------------------------------------------------------------- |
+| `/api/downloads/:documentId` | `GET`  | รับโทเค็นดาวน์โหลดและสร้างลิงก์ดาวน์โหลดอย่างปลอดภัย          |
+| `/api/downloads/redirect`    | `GET`  | ลิงก์สำหรับเปลี่ยนทิศทางไปยังไฟล์ดาวน์โหลด (Ad-Redirect Flow) |
+
+---
+
+## 6. หมวดหมู่ แฮชแท็ก และแพลตฟอร์ม (Taxonomy APIs)
+
+* `GET /api/tags` — รายชื่อ Tag ทั้งหมดพร้อมจำนวนการใช้งาน
+* `GET /api/categories` — รายชื่อ Category ทั้งหมด
+* `GET /api/platforms` — รายชื่อแพลตฟอร์มเกม (เช่น PC, Mobile, Android, Switch)
 
 ---
 
 ## 7. Developer Portal & API Verification
 
-Manage developer status and verification tokens.
+ระบบยืนยันตัวตนสำหรับผู้พัฒนา (Developer Status) และการจัดการโทเค็น:
 
 ### Endpoints
-- `GET /api/developer/list` — List all verified developers
-- `GET /api/developer/profile` (Auth) — Retrieve authenticated user's developer profile
-- `POST /api/developer/apply` (Auth) — Submit developer profile application
-- `POST /api/developer/generate-token` (Auth) — Generate a 1-time verification token
-- `POST /api/developer/verify/:token` (Auth) — Verify token
-- `PATCH /api/developer/profile` (Auth) — Update developer profile details
+
+* `GET /api/developer/list` — ดูรายชื่อนักพัฒนาที่ผ่านการยืนยันแล้ว
+* `GET /api/developer/profile` (Auth) — ดูข้อมูลโปรไฟล์ Developer ของตนเอง
+* `POST /api/developer/apply` (Auth) — ส่งคำขอสมัครเป็น Developer
+* `POST /api/developer/generate-token` (Auth) — สร้าง One-Time Token สำหรับยืนยันตัวตน
+* `POST /api/developer/verify/:token` (Auth) — กดยืนยันด้วย One-Time Token
+* `PATCH /api/developer/profile` (Auth) — อัปเดตข้อมูลโปรไฟล์ผู้พัฒนา
 
 ---
 
-## 8. AI Utilities API
+## 8. ระบบช่วยเหลือด้วย AI (AI Utilities API)
 
-Helper endpoints for content creators and developer integrations:
+สำหรับผู้เขียนบทความและนักพัฒนาในการแนะนำ แท็ก และตรวจสอบเนื้อหา:
 
-- `POST /api/ai/suggest-tags` — Automatically suggest relevant tags for content
-- `POST /api/ai/validate-tag` — Validate tag syntax and relevance
+* `POST /api/ai/suggest-tags` — แนะนำ แท็ก ที่เหมาะสมจากเนื้อหาบทความโดยอัตโนมัติ
+* `POST /api/ai/validate-tag` — ตรวจสอบความถูกต้องและความเกี่ยวข้องของแท็ก
 
 ---
 
 ## 9. RSS Feeds
 
-ChanomHub provides RSS feeds to subscribe to news and content updates:
+ChanomHub รองรับ RSS Feeds เพื่อใช้ติดตามข่าวสารและบทความตามหมวดหมู่หรือแพลตฟอร์ม:
 
-- **Platform RSS Feed**: `/platforms/:slug/rss`
-  - *Example*: `https://chanomhub.com/en/platforms/pc/rss`
-- **Tag RSS Feed**: `/tag/:slug/rss`
-  - *Example*: `https://chanomhub.com/en/tag/visual-novel/rss`
+* **Platform RSS Feed**: `/platforms/:slug/rss`
+  * *ตัวอย่าง*: `https://chanomhub.com/th/platforms/pc/rss`
+* **Tag RSS Feed**: `/tag/:slug/rss`
+  * *ตัวอย่าง*: `https://chanomhub.com/th/tag/visual-novel/rss`
 
 ---
 
 ## 10. GraphQL API
 
-The GraphQL endpoint allows client applications to query flexible data schemas.
+ChanomHub มี GraphQL Endpoint สำหรับนักพัฒนาที่ต้องการ Query ข้อมูลที่ยืดหยุ่นและเฉพาะเจาะจง
 
-- **Endpoint**: `/api/graphql`
-- **Supported HTTP Methods**: `POST`, `QUERY`
+* **Endpoint**: `/api/graphql`
+* **รองรับ HTTP Methods**: `POST`, `QUERY`
 
-Explore the full schema via the interactive [GraphQL Schema Browser](/en/reference/graphql-schema/).
+คุณสามารถดู Schema และทดลอง Query ได้ผ่าน [GraphQL Schema Browser](/reference/graphql-schema/) ของเรา
 
 ---
 
-## HTTP Status Codes
+## สรุปสถานะรหัสตอบกลับ (HTTP Status Codes)
 
-| Status Code | Meaning | Description |
-|---|---|---|
-| `200 OK` | Success | Request succeeded |
-| `201 Created` | Created | Resource successfully created |
-| `400 Bad Request` | Bad Request | Invalid inputs or malformed body |
-| `401 Unauthorized` | Unauthorized | Bearer token required in HTTP Header |
-| `403 Forbidden` | Forbidden | Insufficient permissions for operation |
-| `404 Not Found` | Not Found | Requested slug or resource not found |
-| `500 Internal Error` | Internal Server Error | Server-side exception |
+| Status Code          | ความหมาย                 | คำอธิบาย                                  |
+| -------------------- | ------------------------ | ----------------------------------------- |
+| `200 OK`             | สำเร็จ                   | ดึงข้อมูลหรือทำรายการสำเร็จ               |
+| `201 Created`        | สร้างข้อมูลสำเร็จ        | สร้างบทความ หรือส่งข้อมูลสำเร็จ           |
+| `400 Bad Request`    | ข้อมูลไม่ถูกต้อง         | ข้อมูลนำเข้าไม่ถูกต้องตามข้อกำหนด         |
+| `401 Unauthorized`   | ยังไม่ได้ยืนยันตัวตน     | ต้องระบุ Bearer Token ใน HTTP Header      |
+| `403 Forbidden`      | ไม่มีสิทธิ์ใช้งาน        | สิทธิ์ของผู้ใช้ไม่เพียงพอในการทำรายการนี้ |
+| `404 Not Found`      | ไม่พบข้อมูล              | ไม่พบ Slug หรือ Resource ที่ร้องขอ        |
+| `500 Internal Error` | ข้อผิดพลาดของเซิร์ฟเวอร์ | เกิดปัญหาภายในระบบเซิร์ฟเวอร์             |
