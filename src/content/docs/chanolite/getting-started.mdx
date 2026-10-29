@@ -1,0 +1,44 @@
+---
+title: เริ่มต้นใช้งาน ChanoLite
+description: ChanoLite คือแอปมือถือประกอบ ChanomHub สำหรับ iOS และ Android — คู่มือติดตั้งและใช้งานเบื้องต้น
+sidebar:
+  label: เริ่มต้นใช้งาน
+  order: 1
+---
+
+**ChanoLite** คือแอปมือถือ (Flutter) สำหรับใช้งาน ChanomHub บน iOS และ Android ดาวน์โหลดได้จาก [GitHub Releases](https://github.com/Chanomhub/ChanoLite/releases/latest) (`.apk` สำหรับ Android และ `.aab` สำหรับ Play Store)
+
+## ความต้องการของระบบ
+
+- Android 5.0 (API 21) ขึ้นไป หรือ iOS 12 ขึ้นไป
+
+## ฟีเจอร์หลัก
+
+- **Library เกม** — เรียกดูและค้นหาบทความเกมจาก ChanomHub พร้อมติดตามผู้ใช้และรับการแจ้งเตือน
+- **ดาวน์โหลดเกมและม็อด** — เปิดลิงก์ดาวน์โหลดจากบทความโดยตรง
+- **โปรไฟล์และรายการโปรด** — บัญชีเดียวกับเว็บ ChanomHub (ล็อกอินผ่าน API เดียวกัน)
+- **เครื่องมือ (Tools)** — ยูทิลิตี้เสริมสำหรับนักแปลและนักพัฒนา
+- **ใช้งานหลายภาษา** — รองรับภาษาไทยและภาษาอังกฤษ (เปลี่ยนได้ในแอป)
+- **ธีม Dark/Light** ตามระบบ
+
+## การสร้างแอปจากซอร์สโค้ด
+
+ต้องมี Flutter SDK 3.9+ และ Dart 3.9+:
+
+```bash
+git clone https://github.com/Chanomhub/ChanoLite.git
+cd ChanoLite
+flutter pub get
+flutter run            # รันบนอุปกรณ์/emulator ที่ต่ออยู่
+
+# สร้าง release
+flutter build apk --release          # Android
+flutter build appbundle --release    # Play Store
+flutter build ios --release          # iOS (ต้องใช้ macOS)
+```
+
+แอปเชื่อมต่อกับ API สาธารณะของ ChanomHub (`api.chanomhub.com`) โดยตรง — ดู endpoint ทั้งหมดได้ใน [API Reference](/reference/api/)
+
+## การแจ้งเตือนและสิทธิ์
+
+แอปจะขอสิทธิ์การแจ้งเตือน (Push) เมื่อล็อกอิน หากปฏิเสธไปแล้วสามารถเปิดใหม่ได้จากการตั้งค่าของระบบปฏิบัติการ

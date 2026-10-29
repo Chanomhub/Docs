@@ -34,6 +34,14 @@ export default defineConfig({
 					autogenerate: { directory: 'chanox2' },
 				},
 				{
+					label: 'ChanoLite',
+					autogenerate: { directory: 'chanolite' },
+				},
+				{
+					label: 'Lingo',
+					autogenerate: { directory: 'lingo' },
+				},
+				{
 					label: 'API Reference',
 					autogenerate: { directory: 'reference' },
 				},

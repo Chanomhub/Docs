@@ -1,0 +1,87 @@
+---
+title: เริ่มต้นใช้งาน Lingo
+description: Lingo-Translate คือชุดเครื่องมือแปลเกม (RPG Maker, Ren'Py, Godot, Unity, libGDX) ด้วย AI — คู่มือติดตั้งและใช้งานเบื้องต้น
+sidebar:
+  label: เริ่มต้นใช้งาน
+  order: 1
+---
+
+**Lingo** (Lingo-Translate) คือชุดเครื่องมือแปลเกมรุ่นใหม่ เขียนด้วย Go ล้วน (ไม่ต้องพึ่ง C/C++ runtime) รองรับการแปลเกมด้วย AI ตั้งแต่ดึงข้อความจากเกม แปลด้วย LLM ไปจนถึงคืนค่ากลับเข้าไฟล์เกมและเผยแพร่เป็นม็อดแปลบน ChanomHub
+
+## เอนจินเกมที่รองรับ
+
+| เอนจิน | รองรับ |
+|---|---|
+| RPG Maker (MV / MZ) | บทสนทนา (401), ตัวเลือก (102), ชื่อผู้พูด (101), ไฟล์ฐานข้อมูล |
+| Ren'Py | สคริปต์ `.rpy`, ข้อความบทสนทนา, เมนู, export `tl/Thai/` แบบ native |
+| Godot | `.tscn`, `tr()` ใน GDScript, แคตตาล็อก `.csv` |
+| Unity | YAML `.asset` / `.prefab`, StreamingAssets JSON/CSV, export XUnity.AutoTranslator |
+| libGDX | Java `.properties`, script JSON, JAR patching |
+
+## การติดตั้ง
+
+### ดาวน์โหลดตัวติดตั้งสำเร็จรูป (แนะนำ)
+
+ดาวน์โหลดจาก [GitHub Releases](https://github.com/ProjectErotic/Lingo-Translate/releases/latest) — ไบนารีเดี่ยวทั้ง Windows, Linux (amd64/arm64) และ macOS พร้อมไฟล์ `checksums.txt` สำหรับตรวจสอบ
+
+### สร้างจากซอร์สโค้ด
+
+```bash
+git clone https://github.com/ProjectErotic/Lingo-Translate.git
+cd Lingo-Translate
+make build        # ได้ไบนารีที่ bin/lingo
+./bin/lingo version
+```
+
+ต้องมี Go เวอร์ชันตามที่ระบุใน `go.mod` เท่านั้น ไม่ต้องติดตั้ง dependencies อื่น
+
+---
+
+## Quickstart (CLI)
+
+```bash
+# 1) ดึงข้อความจากเกมเข้า workspace (.nst)
+lingo extract -path ./MyGame -workspace ./project.nst
+
+# 2) แปลด้วย AI
+export GEMINI_API_KEY="your-key"
+lingo translate -workspace ./project.nst -provider gemini -source Japanese -target Thai
+
+# 3) คืนค่าลงเกม
+lingo inject -path ./MyGame -workspace ./project.nst -dest ./MyGame_Translated
+
+# หรือแบบไม่แก้ไฟล์เดิม (RPG Maker MV/MZ)
+lingo deploy -path ./MyGame -workspace ./project.nst
+```
+
+`deploy` จะติดตั้งเลเยอร์แปล (`Lingo_TranslationLayer.js`) โดยไม่แตะไฟล์เดิมของเกม — ปลอดภัยกับเกมที่อัปเดตบ่อย
+
+## คำสั่งหลัก
+
+| คำสั่ง | คำอธิบาย |
+|---|---|
+| `lingo ui` | เปิด Web Dashboard ในเบราว์เซอร์ (แนะนำ) |
+| `lingo app` | เปิดแอปเดสก์ท็อปแบบ native window |
+| `lingo extract` / `translate` / `inject` / `deploy` | ขั้นตอนแปลหลัก |
+| `lingo merge` | รวมคำแปลเดิมเข้าเกมเวอร์ชันใหม่ (ไม่ต้องแปลซ้ำ) |
+| `lingo projects` / `status` | ดูรายการโปรเจกต์และสถิติความคืบหน้า |
+| `lingo export-patch` / `import-patch` / `apply-patch` | แจกจ่ายไฟล์แปลแบบ `.patch.json.gz` ขนาดเล็กมาก |
+| `lingo mcp` | เปิด MCP server (stdio) ให้ AI agent เช่น Claude เรียกใช้ได้โดยตรง |
+| `lingo update` | อัปเดตตัว CLI หรือ lexicon ความรู้กลาง |
+
+## ผู้ให้บริการแปล (Providers)
+
+ดูรายการทั้งหมดด้วย `lingo providers` — ในตัวมี Gemini, OpenAI/Compatible, DeepSeek, Groq, Ollama (โมเดลโลคัล), OpenRouter, Google Translate และ UCHS AI Infrastructure นอกจากนี้เพิ่ม provider ภายนอกได้โดยวางไฟล์ JSON ที่ `~/.lingo/providers/<name>.json`
+
+## สไตล์การแปล (Styles)
+
+เลือกโทนการแปลได้ด้วย `lingo styles` เช่น `standard`, `vn_romance` (วิชวลโนเวล), `fantasy_rpg`, `comedy` และอื่น ๆ
+
+## เผยแพร่ลง ChanomHub
+
+```bash
+lingo login                                # ยืนยันตัวตนกับ ChanomHub (สไตล์ npm login)
+lingo publish -path ./MyGame -slug my-game-slug
+```
+
+`publish` จัดแพ็กม็อดแปลและส่งเข้า ChanomHub ผ่าน endpoint `POST /mods/article/:slug/nst-submission` โดยจะเข้าสู่กระบวนการตรวจสอบ (Moderation) ก่อนเผยแพร่ ดูข้อมูลที่เกี่ยวข้องได้ในหน้า [API Reference — Mods](/reference/api/#4-api-ม็อดและเอนจินเกม-mods-engines-api)

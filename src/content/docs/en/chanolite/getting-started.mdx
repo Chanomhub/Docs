@@ -1,0 +1,44 @@
+---
+title: Getting Started with ChanoLite
+description: ChanoLite is the ChanomHub companion app for iOS and Android — installation and quickstart guide
+sidebar:
+  label: Getting Started
+  order: 1
+---
+
+**ChanoLite** is the Flutter mobile app for using ChanomHub on iOS and Android. Download it from [GitHub Releases](https://github.com/Chanomhub/ChanoLite/releases/latest) (`.apk` for Android, `.aab` for the Play Store).
+
+## System requirements
+
+- Android 5.0 (API 21) or later, or iOS 12 or later
+
+## Key features
+
+- **Game library** — browse and search ChanomHub articles, follow users, and receive notifications
+- **Downloads** — open article download links directly
+- **Profiles & favorites** — same account as the ChanomHub website (signs in through the same API)
+- **Tools** — extra utilities for translators and developers
+- **Multi-language** — Thai and English built in (switchable in-app)
+- **Dark/Light theme** following the system setting
+
+## Building from source
+
+Requires Flutter SDK 3.9+ and Dart 3.9+:
+
+```bash
+git clone https://github.com/Chanomhub/ChanoLite.git
+cd ChanoLite
+flutter pub get
+flutter run            # run on a connected device/emulator
+
+# Release builds
+flutter build apk --release          # Android
+flutter build appbundle --release    # Play Store
+flutter build ios --release          # iOS (requires macOS)
+```
+
+The app talks directly to the public ChanomHub API (`api.chanomhub.com`) — see the [API Reference](/en/reference/api/) for all endpoints.
+
+## Notifications & permissions
+
+The app requests push-notification permission on sign-in. If you declined it, re-enable it later from the OS settings.
