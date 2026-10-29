@@ -3,105 +3,129 @@ title: API Reference (เอกสารอ้างอิง API)
 description: รายละเอียดและข้อกำหนด REST API, GraphQL, RSS และ Developer APIs ของ ChanomHub สำหรับผู้ใช้และนักพัฒนา
 ---
 
-import { Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 คู่มือฉบับนี้รวบรวม API ทั้งหมดที่ผู้ใช้และนักพัฒนาสามารถใช้งานได้บนแพลตฟอร์ม **ChanomHub** เพื่อเชื่อมต่อ ค้นหา ดึงข้อมูลบทความ ม็อด (Mods) หรือผสานรวมบริการต่างๆ
 
 ## ภาพรวมระบบ API (Overview)
 
-ChanomHub ให้บริการ API ผ่านหลากหลายรูปแบบตามการใช้งาน:
-
 - **Base URL (REST)**: `https://api.chanomhub.com/api` (หรือ `http://localhost:3000/api` สำหรับ Local)
-- **GraphQL Endpoint**: `https://api.chanomhub.com/api/graphql`
+- **GraphQL Endpoints**: `/api/graphql` (v1), `/api/v2/graphql`, `/api/v3/graphql`
 - **Swagger Documentation**: [https://api.chanomhub.com/api-docs](https://api.chanomhub.com/api-docs)
+
+Response ของ REST API ทั้งหมดจะถูกห่อด้วย envelope กลาง — payload จริงจะอยู่ในฟิลด์ `data` ของ response body เสมอ
+
+```json
+{ "data": { "...payload": "" }, "statusCode": 200, "timestamp": "2026-01-01T00:00:00.000Z" }
+```
+
+ตัวอย่างในเอกสารนี้แสดงรูปแบบ payload หลังถอด envelope แล้ว
 
 ---
 
 ## 1. การยืนยันตัวตน (Authentication)
 
-การใช้งาน API ส่วนใหญ่สำหรับดึงข้อมูลสาธารณะ (เช่น รายชื่อบทความ, ม็อด, ค้นหา) ไม่จำเป็นต้องใช้ Token แต่หากต้องการดำเนินการจัดการข้อมูลส่วนตัว หรือส่งบทความ จะต้องระบุ HTTP Header:
+Endpoint สาธารณะส่วนใหญ่ (บทความ, ม็อด, ดาวน์โหลด, ค้นหา) ไม่ต้องใช้ Token แต่การดำเนินการเขียนข้อมูลหรือเข้าถึงข้อมูลส่วนตัวต้องส่ง Header:
 
 ```http
-Authorization: Bearer <YOUR_ACCESS_TOKEN>
+Authorization: Bearer <YOUR_TOKEN>
 ```
 
-### การเข้าสู่ระบบ / ลงทะเบียน (Auth Endpoints)
+### Session Endpoints (Better Auth)
 
 | Endpoint | Method | คำอธิบาย |
 |---|---|---|
 | `/api/auth/sign-in/email` | `POST` | เข้าสู่ระบบด้วย Email และ Password |
 | `/api/auth/sign-up/email` | `POST` | สมัครสมาชิกใหม่ด้วย Email |
 | `/api/auth/sign-out` | `POST` | ออกจากระบบ (Invalidate Session) |
-| `/api/auth/sign-in/social` | `GET` | เข้าสู่ระบบผ่าน Social Provider (`google`, `discord`, `github`) |
+| `/api/auth/sign-in/social` | `GET` | เข้าสู่ระบบผ่าน Social Provider (`google`, `discord`, `github`) — ต้องระบุ query parameter `provider` |
+
+### Token & Password Endpoints (JWT)
+
+| Endpoint | Method | Auth | คำอธิบาย |
+|---|---|---|---|
+| `/api/auth/refresh` | `POST` | ❌ | ต่ออายุ Access Token |
+| `/api/auth/forgot-password` | `POST` | ❌ | ส่งอีเมลตั้งรหัสผ่านใหม่ |
+| `/api/auth/reset-password` | `POST` | ❌ | ตั้งรหัสผ่านใหม่ด้วย Reset Token |
+| `/api/auth/logout` | `POST` | ✅ | เพิกถอน Token ปัจจุบัน |
+| `/api/auth/logout-all` | `POST` | ✅ | เพิกถอน Token ทั้งหมดของผู้ใช้ |
+| `/api/auth/exchange` | `POST` | ❌ | แลก Token จากผู้ให้บริการอื่นเป็น JWT ของ ChanomHub |
+| `/api/auth/verify` | `GET` / `POST` | ❌ | ตรวจสอบ JWT — คืนค่า `{ valid, userId }` |
 
 ---
 
 ## 2. API สำหรับบทความ (Articles API)
 
-จัดการ ดึงข้อมูล และค้นหาบทความเกมหรือเนื้อหาในแพลตฟอร์ม
-
 ### 2.1 ดึงรายการบทความ (List Articles)
+
 `GET /api/articles`
 
 **Query Parameters:**
-- `page` (number): หน้าที่ต้องการ ( Default: `1` )
-- `limit` (number): จำนวนรายการต่อหน้า ( Default: `20` )
-- `category` (string): กรองตาม Category Slug
-- `tag` (string): กรองตาม Tag Slug
-- `search` (string): คำค้นหาในชื่อหรือเนื้อหา
-- `sortBy` (string): การเรียงลำดับ (`latest`, `popular`, `trending`)
+
+- `q` (string): ค้นหาในชื่อ/คำอธิบาย/เนื้อหา (อย่างน้อย 3 ตัวอักษร)
+- `author`, `creator`, `tag`, `category`, `platform`, `engine`, `language`, `favorited` (string): ตัวกรอง
+- `status` (string): ค่าเริ่มต้นสำหรับผู้ไม่ล็อกอินคือ `PUBLISHED`
+- `sequentialCode` (string): ค้นหาด้วยรหัสบทความ
+- `sortBy` (string): `updatedAt` (ค่าเริ่มต้น), `createdAt`, `viewsCount`, `title`
+- `sortOrder` (string): `asc` / `desc`
+- `limit` (number, ค่าเริ่มต้น `20`), `offset` (number, ค่าเริ่มต้น `0`) — แบ่งหน้าแบบ offset
 
 <Tabs>
   <TabItem label="cURL">
 ```bash
-curl -X GET "https://api.chanomhub.com/api/articles?page=1&limit=10&sortBy=latest"
+curl "https://api.chanomhub.com/api/articles?limit=10&offset=0&q=renpy"
 ```
   </TabItem>
   <TabItem label="TypeScript / JavaScript">
 ```typescript
-const res = await fetch('https://api.chanomhub.com/api/articles?page=1&limit=10');
-const data = await res.json();
+const res = await fetch('https://api.chanomhub.com/api/articles?limit=10');
+const { data } = await res.json();
 console.log(data.articles, data.articlesCount);
 ```
   </TabItem>
 </Tabs>
 
-### 2.2 บทความมาใหม่ & ยอดนิยม
-- `GET /api/articles/latest` — ดึงบทความที่เพิ่งเผยแพร่ล่าสุด
-- `GET /api/articles/popular` — ดึงบทความยอดฮิตที่มียอดอ่านสูง
+**Response (หลังถอด envelope):**
 
-### 2.3 อ่านรายละเอียดบทความ (Get Article Detail)
-`GET /api/articles/:slug`
-
-**Response Example:**
 ```json
 {
-  "article": {
-    "id": 102,
-    "title": "ตัวอย่างบทความเกมม็อด",
-    "slug": "example-game-mod",
-    "description": "คำอธิบายย่อบทความ...",
-    "body": "เนื้อหาบทความแบบ Markdown หรือ Rich Text...",
-    "ver": "1.2.0",
-    "engine": "RENPY",
-    "views": 1540,
-    "ratings": 4.8,
-    "tags": ["Visual Novel", "Mod"],
-    "createdAt": "2026-08-19T10:00:00.000Z"
-  }
+  "articles": [ { "id": 941, "title": "...", "slug": "...", "ver": "1.2.0", "engine": "RENPY", "...": "" } ],
+  "articlesCount": 853
 }
 ```
 
-### 2.4 เพิ่มยอดเข้าชม (Increment View)
-`POST /api/articles/:slug/view`
-- ใช้สำหรับบันทึกการอ่านบทความเมื่อผู้ใช้เปิดอ่านหน้าบทความ
+### 2.2 Feed และบทความของตนเอง (ต้องยืนยันตัวตน)
 
-### 2.5 จัดการบทความ (Authenticated)
-- `POST /api/articles` — สร้างบทความใหม่ (Draft/Submission)
-- `PUT /api/articles/:slug` — แก้ไขเนื้อหาบทความของผู้ใช้
-- `POST /api/articles/:slug/transfer-request` — ส่งคำขอโอนสิทธิ์ความเป็นเจ้าของบทความไปยังผู้ใช้อื่น
-- `POST /api/articles/:slug/favorite` — เพิ่มบทความเข้ารายการโปรด (Bookmark)
-- `DELETE /api/articles/:slug/favorite` — ยกเลิกบทความในรายการโปรด
+- `GET /api/articles/feed` — บทความจากผู้ใช้ที่ติดตาม
+- `GET /api/articles/me` — บทความของผู้ใช้เอง (รวม Draft)
+- `POST /api/articles/reserve` — จอง slug ที่ไม่ซ้ำสำหรับบทความใหม่
+
+### 2.3 อ่านรายละเอียดบทความ
+
+- `GET /api/articles/:slug` — อ่านบทความเต็มจาก slug
+- `GET /api/articles/:slug/related` — บทความที่เกี่ยวข้อง
+- `POST /api/articles/:slug/view` — เพิ่มยอดเข้าชม
+
+### 2.4 จัดการบทความ (ต้องยืนยันตัวตน)
+
+- `POST /api/articles` — สร้างบทความใหม่ (Draft)
+- `PUT /api/articles/:slug` — แก้ไขบทความ
+- `DELETE /api/articles/:slug` — ลบแบบ Soft Delete (กู้คืนด้วย `POST /api/articles/:slug/restore`)
+- `DELETE /api/articles/:slug/permanent` — ลบถาวร
+- `POST /api/articles/:slug/publish-request` — ส่ง Draft เข้าสู่การตรวจสอบ (Moderation)
+- `POST /api/articles/:slug/transfer-request` — ส่งคำขอโอนสิทธิ์ความเป็นเจ้าของบทความ
+- `GET /api/articles/:slug/transfer-request` — ดูคำขอโอนสิทธิ์ที่รออยู่
+- `DELETE /api/articles/:slug/transfer-request` — ยกเลิกคำขอโอนสิทธิ์
+- `POST /api/articles/:slug/favorite` — เพิ่มบทความเข้ารายการโปรด
+- `DELETE /api/articles/:slug/favorite` — ยกเลิกรายการโปรด
+- `POST /api/articles/:slug/rate` — ให้คะแนนบทความ (`{ "rating": 1..10 }`)
+
+### 2.5 ประวัติการแก้ไข (Revision History)
+
+- `GET /api/articles/:slug/revisions` — รายการ revision ทั้งหมด
+- `GET /api/articles/:slug/revisions/:version` — ดู revision หนึ่ง (พร้อมเนื้อหาที่ reconstruct แล้ว)
+- `POST /api/articles/:slug/revisions/:version/restore` — กู้คืนเป็น revision นั้น
+- `GET /api/articles/:slug/revisions/compare` — เปรียบเทียบสอง revision (`from`, `to`)
 
 ---
 
@@ -117,21 +141,44 @@ console.log(data.articles, data.articlesCount);
 
 ## 4. API ม็อดและเอนจินเกม (Mods & Engines API)
 
-สำหรับค้นหาม็อด ดึงหมวดหมู่ม็อด และข้อมูล Engine ของเกม
+ม็อดคือไฟล์แปล/ม็อดเกมเพลย์ที่ผูกกับบทความที่เผยแพร่แล้ว
 
-- `GET /api/mods` — ค้นหาและกรองรายการม็อดทั้งหมด
-- `GET /api/mods/:id` — ดึงข้อมูลรายละเอียดม็อดเฉพาะ ID
-- `GET /api/mod-categories` — ดึงรายชื่อหมวดหมู่ม็อดทั้งหมด
-- `GET /api/engines` — ดึงรายชื่อ Game Engines ที่รองรับ (เช่น Ren'Py, Unity, RPG Maker)
+- `GET /api/mods` — รายการม็อด; ตัวกรอง: `status` (Moderator เท่านั้น), `skip`, `take`, `type`, `language`, `search`, `articleId`, `articleSlug`, `creatorId`
+- `GET /api/mods/article/:slug` — ม็อดทั้งหมดของบทความ (ตัวกรอง: `status`, `type`, `language`)
+- `GET /api/mods/:slug/versions` — ประวัติเวอร์ชันของม็อด
+- `GET /api/mods/:slug/versions/:version` — ดูเวอร์ชันหนึ่ง
+- `GET /api/mods/:slug/download/:version` — ดาวน์โหลดเวอร์ชันที่ระบุ
+- `POST /api/mods/article/:slug` (Auth) — ส่งม็อดใหม่ (จะสร้างคำขอ Moderation ให้อัตโนมัติ)
+- `POST /api/mods/article/:slug/nst-submission` (Auth) — ส่งแพ็กเกจแปลจาก NST
+- `POST /api/mods/:id/versions` (Auth) — เผยแพร่เวอร์ชันใหม่ของม็อด
+- `PATCH /api/mods/:id/versions/:versionId` (Auth) — แก้ไขเวอร์ชันของม็อด
+- `DELETE /api/mods/:id/versions/:versionId` (Auth) — ลบเวอร์ชันของม็อด
+- `PATCH /api/mods/:id` (Auth) — แก้ไขข้อมูลม็อด
+- `PATCH /api/mods/:id/status` (Auth, Moderator) — อนุมัติ/ปฏิเสธม็อด
+- `DELETE /api/mods/:id` (Auth) — ลบม็อด
+
+หมวดหมู่และเอนจิน:
+
+- `GET /api/mod-categories` — หมวดหมู่ม็อด
+- `GET /api/engines` — Game Engines ที่รองรับ (Ren'Py, Unity, RPG Maker ฯลฯ)
 
 ---
 
 ## 5. API ดาวน์โหลดไฟล์ (Downloads API)
 
-| Endpoint | Method | คำอธิบาย |
-|---|---|---|
-| `/api/downloads/:documentId` | `GET` | รับโทเค็นดาวน์โหลดและสร้างลิงก์ดาวน์โหลดอย่างปลอดภัย |
-| `/api/downloads/redirect` | `GET` | ลิงก์สำหรับเปลี่ยนทิศทางไปยังไฟล์ดาวน์โหลด (Ad-Redirect Flow) |
+- `GET /api/downloads/article/:articleId` — **สาธารณะ** — ลิงก์ดาวน์โหลดที่อนุมัติแล้วของบทความ: `{ links: [{ url, isActive, status, ... }] }`
+- `GET /api/downloads/article/slug/:slug` — เหมือนกันแต่ระบุด้วย slug
+- `GET /api/downloads/:id` (Auth) — ดูลิงก์ดาวน์โหลดหนึ่งรายการ
+- `POST /api/downloads` (Auth) — สร้างลิงก์ดาวน์โหลด
+- `PATCH /api/downloads/:id` (Auth) — แก้ไขลิงก์ดาวน์โหลด
+- `DELETE /api/downloads/:id` (Auth) — ลบลิงก์ดาวน์โหลด
+- `GET /api/downloads` (Auth) — รายการลิงก์ของผู้ใช้เอง
+- `GET /api/downloads/pending` (Auth, Moderator) — ลิงก์ที่รอตรวจสอบ
+- `PATCH /api/downloads/:id/moderate` (Auth, Moderator) — อนุมัติ/ปฏิเสธลิงก์
+
+แหล่งดาวน์โหลดทางการ (Official Sources):
+
+- `GET /api/official-download-sources/article/:articleId/approved` — แหล่งดาวน์โหลดทางการที่อนุมัติแล้วของบทความ
 
 ---
 
@@ -139,15 +186,23 @@ console.log(data.articles, data.articlesCount);
 
 - `GET /api/tags` — รายชื่อ Tag ทั้งหมดพร้อมจำนวนการใช้งาน
 - `GET /api/categories` — รายชื่อ Category ทั้งหมด
-- `GET /api/platforms` — รายชื่อแพลตฟอร์มเกม (เช่น PC, Mobile, Android, Switch)
+- `GET /api/platforms` — รายชื่อแพลตฟอร์มเกม (PC, Mobile, Android, Switch ฯลฯ)
 
 ---
 
-## 7. Developer Portal & API Verification
+## 7. API โปรไฟล์ (Profiles API)
+
+- `GET /api/profiles/:username` — โปรไฟล์สาธารณะ (ถ้าส่ง Token จะได้สถานะการติดตามเพิ่ม)
+- `POST /api/profiles/:username/follow` (Auth) — ติดตาม / เลิกติดตามผู้ใช้
+
+---
+
+## 8. Developer Portal & API Verification
 
 ระบบยืนยันตัวตนสำหรับผู้พัฒนา (Developer Status) และการจัดการโทเค็น:
 
 ### Endpoints
+
 - `GET /api/developer/list` — ดูรายชื่อนักพัฒนาที่ผ่านการยืนยันแล้ว
 - `GET /api/developer/profile` (Auth) — ดูข้อมูลโปรไฟล์ Developer ของตนเอง
 - `POST /api/developer/apply` (Auth) — ส่งคำขอสมัครเป็น Developer
@@ -157,34 +212,79 @@ console.log(data.articles, data.articlesCount);
 
 ---
 
-## 8. ระบบช่วยเหลือด้วย AI (AI Utilities API)
+## 9. API การแจ้งเตือน (Notifications API — ต้องยืนยันตัวตน)
 
-สำหรับผู้เขียนบทความและนักพัฒนาในการแนะนำ แท็ก และตรวจสอบเนื้อหา:
-
-- `POST /api/ai/suggest-tags` — แนะนำ แท็ก ที่เหมาะสมจากเนื้อหาบทความโดยอัตโนมัติ
-- `POST /api/ai/validate-tag` — ตรวจสอบความถูกต้องและความเกี่ยวข้องของแท็ก
+- `GET /api/notifications` — รายการแจ้งเตือนของผู้ใช้ปัจจุบัน
+- `PATCH /api/notifications/:id/read` — ทำเครื่องหมายว่าอ่านแล้วหนึ่งรายการ
+- `PATCH /api/notifications/read-all` — ทำเครื่องหมายว่าอ่านแล้วทั้งหมด
+- `DELETE /api/notifications/:id` — ลบหนึ่งรายการ
+- `DELETE /api/notifications` — ลบทั้งหมด
 
 ---
 
-## 9. RSS Feeds
+## 10. API บทความสปอนเซอร์ (Sponsored Articles API)
+
+- `GET /api/sponsored-articles` — รายการสปอนเซอร์ที่กำลังแสดง
+- `GET /api/sponsored-articles/:id` — ดูรายการหนึ่ง
+
+Endpoint ฝั่งแอดมิน (`GET /api/sponsored-articles/admin/all`, `POST`, `PUT /:id`, `DELETE /:id`) ต้องใช้สิทธิ์แอดมิน
+
+---
+
+## 11. API วิดีโอ (Videos API)
+
+- `GET /api/videos` — รายการวิดีโอ
+- `POST /api/videos` (Auth) — สร้างรายการวิดีโอ
+
+---
+
+## 12. MCP Server (Model Context Protocol)
+
+ChanomHub เปิด [MCP](https://modelcontextprotocol.io) server แบบอ่านอย่างเดียวผ่าน Streamable HTTP สำหรับ AI assistant:
+
+- `POST /api/mcp` (Auth) — ช่องทาง JSON-RPC (`initialize` ก่อน แล้วส่งคำขอต่อด้วย header `mcp-session-id`)
+- `GET /api/mcp` (Auth) — เปิด SSE stream ของ session ที่มีอยู่
+- `DELETE /api/mcp` (Auth) — ปิด session
+
+เครื่องมือที่เปิดให้ใช้เป็นการค้น/อ่านข้อมูลบทความ ม็อด คอมเมนต์ และโปรไฟล์เท่านั้น
+
+---
+
+## 13. GraphQL API
+
+ระบบให้บริการ GraphQL 3 เวอร์ชันผ่าน gateway เดียวกัน (GraphQL Yoga):
+
+| เวอร์ชัน | Endpoint | หมายเหตุ |
+|---|---|---|
+| v1 | `/api/graphql` (alias `/api/v1/graphql`) | Schema ดั้งเดิม |
+| v2 | `/api/v2/graphql` | Schema สาธารณะปัจจุบัน (`public`, `system`, `moderate`) |
+| v3 | `/api/v3/graphql` | Schema เดียวกับ v2; รองรับ HTTP method `QUERY` เพิ่ม (ห้าม Mutation บน `QUERY`) |
+
+- **Methods ที่รองรับ**: `GET` (cache 60 วินาที) และ `POST`; `QUERY` เฉพาะ v3
+- **Introspection ถูกปิดใน Production** (เปิดต่อสภาพแวดล้อมด้วย `ENABLE_INTROSPECTION=true`)
+- จำกัดความลึกของ query ที่ 10 ระดับ
+- รองรับ Automatic Persistent Queries (APQ)
+
+ศึกษา Schema เพิ่มเติมได้ที่ [GraphQL Schema Browser](/reference/graphql-schema/) (สร้างจาก snapshot ที่ commit ไว้)
+
+ตัวอย่าง:
+
+```bash
+curl https://api.chanomhub.com/api/v2/graphql \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{ public { articles(limit: 5) { id title slug ver } } }"}'
+```
+
+---
+
+## 14. RSS Feeds
 
 ChanomHub รองรับ RSS Feeds เพื่อใช้ติดตามข่าวสารและบทความตามหมวดหมู่หรือแพลตฟอร์ม:
 
-- **Platform RSS Feed**: `/platforms/:slug/rss`
-  - *ตัวอย่าง*: `https://chanomhub.com/th/platforms/pc/rss`
-- **Tag RSS Feed**: `/tag/:slug/rss`
-  - *ตัวอย่าง*: `https://chanomhub.com/th/tag/visual-novel/rss`
-
----
-
-## 10. GraphQL API
-
-ChanomHub มี GraphQL Endpoint สำหรับนักพัฒนาที่ต้องการ Query ข้อมูลที่ยืดหยุ่นและเฉพาะเจาะจง
-
-- **Endpoint**: `/api/graphql`
-- **รองรับ HTTP Methods**: `POST`, `QUERY`
-
-คุณสามารถดู Schema และทดลอง Query ได้ผ่าน [GraphQL Schema Browser](/reference/graphql-schema/) ของเรา
+- **Platform RSS Feed**: `https://chanomhub.com/<locale>/platforms/<slug>/rss`
+  - *ตัวอย่าง*: [https://chanomhub.com/th/platforms/pc/rss](https://chanomhub.com/th/platforms/pc/rss)
+- **Tag RSS Feed**: `https://chanomhub.com/<locale>/tag/<slug>/rss`
+  - *ตัวอย่าง*: [https://chanomhub.com/th/tag/visual-novel/rss](https://chanomhub.com/th/tag/visual-novel/rss)
 
 ---
 
@@ -198,4 +298,5 @@ ChanomHub มี GraphQL Endpoint สำหรับนักพัฒนาท�
 | `401 Unauthorized` | ยังไม่ได้ยืนยันตัวตน | ต้องระบุ Bearer Token ใน HTTP Header |
 | `403 Forbidden` | ไม่มีสิทธิ์ใช้งาน | สิทธิ์ของผู้ใช้ไม่เพียงพอในการทำรายการนี้ |
 | `404 Not Found` | ไม่พบข้อมูล | ไม่พบ Slug หรือ Resource ที่ร้องขอ |
+| `429 Too Many Requests` | เรียกใช้งานถี่เกินไป | มีการเรียกใช้งานมากเกินไป ให้ลองใหม่ภายหลัง |
 | `500 Internal Error` | ข้อผิดพลาดของเซิร์ฟเวอร์ | เกิดปัญหาภายในระบบเซิร์ฟเวอร์ |
