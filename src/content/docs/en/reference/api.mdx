@@ -3,105 +3,129 @@ title: API Reference
 description: Complete REST API, GraphQL, RSS, and Developer API specification for ChanomHub users and developers
 ---
 
-import { Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-This guide outlines all public and developer APIs provided by the **ChanomHub** platform for querying, integrating, and managing articles, mods, and developer features.
+This guide outlines the public and developer APIs provided by the **ChanomHub** platform for querying, integrating, and managing articles, mods, downloads, and developer features.
 
 ## Overview
 
-ChanomHub APIs are accessible via multiple endpoints:
-
 - **Base URL (REST)**: `https://api.chanomhub.com/api` (or `http://localhost:3000/api` for local development)
-- **GraphQL Endpoint**: `https://api.chanomhub.com/api/graphql`
-- **Interactive Swagger Docs**: [https://api.chanomhub.com/api-docs](https://api.chanomhub.com/api-docs)
+- **GraphQL endpoints**: `/api/graphql` (v1), `/api/v2/graphql`, `/api/v3/graphql`
+- **Interactive Swagger docs**: [https://api.chanomhub.com/api-docs](https://api.chanomhub.com/api-docs)
+
+All REST responses are wrapped by a global envelope: the payload you want is inside the `data` field of the response body.
+
+```json
+{ "data": { "...payload": "" }, "statusCode": 200, "timestamp": "2026-01-01T00:00:00.000Z" }
+```
+
+The examples below show the unwrapped payload shape.
 
 ---
 
 ## 1. Authentication
 
-Public endpoints (listing articles, searching mods, reading public profiles) do not require authentication. For write operations or accessing personal user resources, include a Bearer token in your HTTP request headers:
+Public read endpoints (articles, mods, downloads, search) work without a token. For write operations and personal resources, send a Bearer token:
 
 ```http
-Authorization: Bearer <YOUR_ACCESS_TOKEN>
+Authorization: Bearer <YOUR_TOKEN>
 ```
 
-### Auth Endpoints
+### Session endpoints (Better Auth)
 
 | Endpoint | Method | Description |
 |---|---|---|
-| `/api/auth/sign-in/email` | `POST` | Sign in with Email and Password |
-| `/api/auth/sign-up/email` | `POST` | Register a new user account |
-| `/api/auth/sign-out` | `POST` | Sign out / Invalidate current session |
-| `/api/auth/sign-in/social` | `GET` | Initiate OAuth login (`google`, `discord`, `github`) |
+| `/api/auth/sign-in/email` | `POST` | Sign in with email and password |
+| `/api/auth/sign-up/email` | `POST` | Register a new account |
+| `/api/auth/sign-out` | `POST` | Sign out / invalidate the session |
+| `/api/auth/sign-in/social` | `GET` | Start OAuth login (`google`, `discord`, `github`); `provider` query parameter required |
+
+### Token & password endpoints (JWT)
+
+| Endpoint | Method | Auth | Description |
+|---|---|---|---|
+| `/api/auth/refresh` | `POST` | ❌ | Refresh an access token |
+| `/api/auth/forgot-password` | `POST` | ❌ | Send a password reset email |
+| `/api/auth/reset-password` | `POST` | ❌ | Reset the password with a reset token |
+| `/api/auth/logout` | `POST` | ✅ | Revoke the current token |
+| `/api/auth/logout-all` | `POST` | ✅ | Revoke all tokens of the user |
+| `/api/auth/exchange` | `POST` | ❌ | Exchange a third-party token for a ChanomHub JWT |
+| `/api/auth/verify` | `GET` / `POST` | ❌ | Validate a JWT; returns `{ valid, userId }` |
 
 ---
 
 ## 2. Articles API
 
-Search, fetch, create, and manage game articles and publications.
+### 2.1 List articles
 
-### 2.1 Fetch Articles List
 `GET /api/articles`
 
-**Query Parameters:**
-- `page` (number): Target page number ( Default: `1` )
-- `limit` (number): Number of items per page ( Default: `20` )
-- `category` (string): Filter by Category Slug
-- `tag` (string): Filter by Tag Slug
-- `search` (string): Search query string for title/content
-- `sortBy` (string): Sorting criteria (`latest`, `popular`, `trending`)
+**Query parameters:**
+
+- `q` (string): search in title/description/body (minimum 3 characters)
+- `author`, `creator`, `tag`, `category`, `platform`, `engine`, `language`, `favorited` (string): filters
+- `status` (string): `PUBLISHED` by default for anonymous calls
+- `sequentialCode` (string): exact article code lookup
+- `sortBy` (string): `updatedAt` (default), `createdAt`, `viewsCount`, `title`
+- `sortOrder` (string): `asc` / `desc`
+- `limit` (number, default `20`), `offset` (number, default `0`) — pagination is offset-based
 
 <Tabs>
   <TabItem label="cURL">
 ```bash
-curl -X GET "https://api.chanomhub.com/api/articles?page=1&limit=10&sortBy=latest"
+curl "https://api.chanomhub.com/api/articles?limit=10&offset=0&q=renpy"
 ```
   </TabItem>
   <TabItem label="TypeScript / JavaScript">
 ```typescript
-const res = await fetch('https://api.chanomhub.com/api/articles?page=1&limit=10');
-const data = await res.json();
+const res = await fetch('https://api.chanomhub.com/api/articles?limit=10');
+const { data } = await res.json();
 console.log(data.articles, data.articlesCount);
 ```
   </TabItem>
 </Tabs>
 
-### 2.2 Latest & Popular Articles
-- `GET /api/articles/latest` — Get newly published articles
-- `GET /api/articles/popular` — Get top trending articles
+**Response (unwrapped):**
 
-### 2.3 Article Details
-`GET /api/articles/:slug`
-
-**Response Example:**
 ```json
 {
-  "article": {
-    "id": 102,
-    "title": "Example Game Mod Article",
-    "slug": "example-game-mod",
-    "description": "Short description of the article...",
-    "body": "Article body in Markdown format...",
-    "ver": "1.2.0",
-    "engine": "RENPY",
-    "views": 1540,
-    "ratings": 4.8,
-    "tags": ["Visual Novel", "Mod"],
-    "createdAt": "2026-08-19T10:00:00.000Z"
-  }
+  "articles": [ { "id": 941, "title": "...", "slug": "...", "ver": "1.2.0", "engine": "RENPY", "...": "" } ],
+  "articlesCount": 853
 }
 ```
 
-### 2.4 Track Article Views
-`POST /api/articles/:slug/view`
-- Increments view count when a user views the article page.
+### 2.2 Feeds & own articles (authenticated)
 
-### 2.5 Article Management (Authenticated)
-- `POST /api/articles` — Create a new article draft/submission
-- `PUT /api/articles/:slug` — Update an existing article
-- `POST /api/articles/:slug/transfer-request` — Request ownership transfer of an article to another user
-- `POST /api/articles/:slug/favorite` — Bookmark an article
-- `DELETE /api/articles/:slug/favorite` — Remove an article from bookmarks
+- `GET /api/articles/feed` — articles from followed users
+- `GET /api/articles/me` — the caller's own articles (including drafts)
+- `POST /api/articles/reserve` — reserve a unique slug for a new article
+
+### 2.3 Article details
+
+- `GET /api/articles/:slug` — full article by slug
+- `GET /api/articles/:slug/related` — related articles
+- `POST /api/articles/:slug/view` — increment the view counter
+
+### 2.4 Article management (authenticated)
+
+- `POST /api/articles` — create an article (draft)
+- `PUT /api/articles/:slug` — update an article
+- `DELETE /api/articles/:slug` — soft-delete (restore with `POST /api/articles/:slug/restore`)
+- `DELETE /api/articles/:slug/permanent` — permanent delete
+- `POST /api/articles/:slug/publish-request` — submit a draft for moderation
+- `POST /api/articles/:slug/transfer-request` — request ownership transfer to another user
+- `GET /api/articles/:slug/transfer-request` — get the active transfer request
+- `DELETE /api/articles/:slug/transfer-request` — cancel the transfer request
+- `POST /api/articles/:slug/favorite` — bookmark an article
+- `DELETE /api/articles/:slug/favorite` — remove the bookmark
+- `POST /api/articles/:slug/rate` — rate an article (`{ "rating": 1..10 }`)
+
+### 2.5 Revision history
+
+- `GET /api/articles/:slug/revisions` — list revisions
+- `GET /api/articles/:slug/revisions/:version` — one revision (with reconstructed content)
+- `POST /api/articles/:slug/revisions/:version/restore` — restore a revision
+- `GET /api/articles/:slug/revisions/compare` — diff two revisions (`from`, `to` query parameters)
 
 ---
 
@@ -109,82 +133,152 @@ console.log(data.articles, data.articlesCount);
 
 | Endpoint | Method | Auth | Description |
 |---|---|---|---|
-| `/api/articles/:slug/comments` | `GET` | ❌ | Retrieve comment tree for an article |
-| `/api/articles/:slug/comments` | `POST` | ✅ | Post a new comment or reply |
-| `/api/articles/:slug/comments/:id` | `DELETE` | ✅ | Delete your comment |
+| `/api/articles/:slug/comments` | `GET` | ❌ | Comment tree for an article |
+| `/api/articles/:slug/comments` | `POST` | ✅ | Post a comment or reply |
+| `/api/articles/:slug/comments/:id` | `DELETE` | ✅ | Delete your own comment |
 
 ---
 
 ## 4. Mods & Engines API
 
-Query game mods, categories, and game engines.
+Mods are translation/gameplay add-ons attached to published articles.
 
-- `GET /api/mods` — Search and filter game mods
-- `GET /api/mods/:id` — Retrieve specific mod details by ID
-- `GET /api/mod-categories` — Fetch list of mod categories
-- `GET /api/engines` — Fetch list of supported game engines (e.g. Ren'Py, Unity, RPG Maker)
+- `GET /api/mods` — list mods; filters: `status` (moderators only), `skip`, `take`, `type`, `language`, `search`, `articleId`, `articleSlug`, `creatorId`
+- `GET /api/mods/article/:slug` — all mods of an article (filters: `status`, `type`, `language`)
+- `GET /api/mods/:slug/versions` — version history of a mod
+- `GET /api/mods/:slug/versions/:version` — one mod version
+- `GET /api/mods/:slug/download/:version` — download a specific version
+- `POST /api/mods/article/:slug` (Auth) — submit a mod (files a moderation request automatically)
+- `POST /api/mods/article/:slug/nst-submission` (Auth) — submit an NST translation package
+- `POST /api/mods/:id/versions` (Auth) — publish a new mod version
+- `PATCH /api/mods/:id/versions/:versionId` (Auth) — edit a mod version
+- `DELETE /api/mods/:id/versions/:versionId` (Auth) — remove a mod version
+- `PATCH /api/mods/:id` (Auth) — update mod metadata
+- `PATCH /api/mods/:id/status` (Auth, moderators) — approve/reject a mod
+- `DELETE /api/mods/:id` (Auth) — delete a mod
+
+Taxonomy:
+
+- `GET /api/mod-categories` — mod categories
+- `GET /api/engines` — supported game engines (Ren'Py, Unity, RPG Maker, …)
 
 ---
 
 ## 5. Downloads API
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/downloads/:documentId` | `GET` | Generate secure download token and links |
-| `/api/downloads/redirect` | `GET` | Handle ad/redirect download links |
+- `GET /api/downloads/article/:articleId` — **public** list of approved download links for an article: `{ links: [{ url, isActive, status, ... }] }`
+- `GET /api/downloads/article/slug/:slug` — same, by slug
+- `GET /api/downloads/:id` (Auth) — one download link by ID
+- `POST /api/downloads` (Auth) — create a download link
+- `PATCH /api/downloads/:id` (Auth) — update a download link
+- `DELETE /api/downloads/:id` (Auth) — delete a download link
+- `GET /api/downloads` (Auth) — list your download links
+- `GET /api/downloads/pending` (Auth, moderators) — links awaiting moderation
+- `PATCH /api/downloads/:id/moderate` (Auth, moderators) — approve/reject a link
+
+Official download sources (verified mirrors):
+
+- `GET /api/official-download-sources/article/:articleId/approved` — approved official sources of an article
 
 ---
 
 ## 6. Taxonomy APIs (Tags, Categories & Platforms)
 
-- `GET /api/tags` — List all article tags with usage counts
-- `GET /api/categories` — List available categories
-- `GET /api/platforms` — List game platforms (PC, Mobile, Android, Switch, etc.)
+- `GET /api/tags` — all tags with usage counts
+- `GET /api/categories` — all categories
+- `GET /api/platforms` — game platforms (PC, Mobile, Android, Switch, …)
 
 ---
 
-## 7. Developer Portal & API Verification
+## 7. Profiles API
 
-Manage developer status and verification tokens.
+- `GET /api/profiles/:username` — public profile (optional auth adds follow state)
+- `POST /api/profiles/:username/follow` (Auth) — follow / unfollow a user
+
+---
+
+## 8. Developer Portal & API Verification
 
 ### Endpoints
-- `GET /api/developer/list` — List all verified developers
-- `GET /api/developer/profile` (Auth) — Retrieve authenticated user's developer profile
-- `POST /api/developer/apply` (Auth) — Submit developer profile application
-- `POST /api/developer/generate-token` (Auth) — Generate a 1-time verification token
-- `POST /api/developer/verify/:token` (Auth) — Verify token
-- `PATCH /api/developer/profile` (Auth) — Update developer profile details
+
+- `GET /api/developer/list` — verified developers
+- `GET /api/developer/profile` (Auth) — your developer profile
+- `POST /api/developer/apply` (Auth) — submit a developer application
+- `POST /api/developer/generate-token` (Auth) — generate a one-time verification token
+- `POST /api/developer/verify/:token` (Auth) — verify with the one-time token
+- `PATCH /api/developer/profile` (Auth) — update developer profile details
 
 ---
 
-## 8. AI Utilities API
+## 9. Notifications API (authenticated)
 
-Helper endpoints for content creators and developer integrations:
-
-- `POST /api/ai/suggest-tags` — Automatically suggest relevant tags for content
-- `POST /api/ai/validate-tag` — Validate tag syntax and relevance
-
----
-
-## 9. RSS Feeds
-
-ChanomHub provides RSS feeds to subscribe to news and content updates:
-
-- **Platform RSS Feed**: `/platforms/:slug/rss`
-  - *Example*: `https://chanomhub.com/en/platforms/pc/rss`
-- **Tag RSS Feed**: `/tag/:slug/rss`
-  - *Example*: `https://chanomhub.com/en/tag/visual-novel/rss`
+- `GET /api/notifications` — list notifications for the current user
+- `PATCH /api/notifications/:id/read` — mark one as read
+- `PATCH /api/notifications/read-all` — mark all as read
+- `DELETE /api/notifications/:id` — delete one
+- `DELETE /api/notifications` — delete all
 
 ---
 
-## 10. GraphQL API
+## 10. Sponsored Articles API
 
-The GraphQL endpoint allows client applications to query flexible data schemas.
+- `GET /api/sponsored-articles` — active sponsored placements
+- `GET /api/sponsored-articles/:id` — one placement
 
-- **Endpoint**: `/api/graphql`
-- **Supported HTTP Methods**: `POST`, `QUERY`
+Admin endpoints (`GET /api/sponsored-articles/admin/all`, `POST`, `PUT /:id`, `DELETE /:id`) require the admin role.
 
-Explore the full schema via the interactive [GraphQL Schema Browser](/en/reference/graphql-schema/).
+---
+
+## 11. Videos API
+
+- `GET /api/videos` — list videos
+- `POST /api/videos` (Auth) — create a video entry
+
+---
+
+## 12. MCP Server (Model Context Protocol)
+
+ChanomHub exposes a read-only [MCP](https://modelcontextprotocol.io) server over Streamable HTTP for AI assistants:
+
+- `POST /api/mcp` (Auth) — JSON-RPC transport (`initialize` first, then session requests carry the `mcp-session-id` header)
+- `GET /api/mcp` (Auth) — SSE stream for an existing session
+- `DELETE /api/mcp` (Auth) — terminate the session
+
+Exposed tools are read-only queries over articles, mods, comments, and profiles.
+
+---
+
+## 13. GraphQL API
+
+Three GraphQL versions are served by the same gateway (GraphQL Yoga):
+
+| Version | Endpoint | Notes |
+|---|---|---|
+| v1 | `/api/graphql` (alias `/api/v1/graphql`) | Original schema |
+| v2 | `/api/v2/graphql` | Current public schema (`public`, `system`, `moderate` root queries) |
+| v3 | `/api/v3/graphql` | Same schema as v2; also accepts the HTTP `QUERY` method (mutations rejected on `QUERY`) |
+
+- **Methods**: `GET` (cached 60s) and `POST`; `QUERY` on v3
+- **Introspection is disabled in production** (per-environment override: `ENABLE_INTROSPECTION=true`)
+- Query depth is limited to 10
+- Automatic persistent queries (APQ) are supported
+
+Browse the schema in the [GraphQL Schema Browser](/en/reference/graphql-schema/) (built from a committed snapshot).
+
+Example:
+
+```bash
+curl https://api.chanomhub.com/api/v2/graphql \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"{ public { articles(limit: 5) { id title slug ver } } }"}'
+```
+
+---
+
+## 14. RSS Feeds
+
+- **Platform feed**: `https://chanomhub.com/<locale>/platforms/<slug>/rss` — e.g. [https://chanomhub.com/en/platforms/pc/rss](https://chanomhub.com/en/platforms/pc/rss)
+- **Tag feed**: `https://chanomhub.com/<locale>/tag/<slug>/rss` — e.g. [https://chanomhub.com/en/tag/visual-novel/rss](https://chanomhub.com/en/tag/visual-novel/rss)
 
 ---
 
@@ -198,4 +292,5 @@ Explore the full schema via the interactive [GraphQL Schema Browser](/en/referen
 | `401 Unauthorized` | Unauthorized | Bearer token required in HTTP Header |
 | `403 Forbidden` | Forbidden | Insufficient permissions for operation |
 | `404 Not Found` | Not Found | Requested slug or resource not found |
+| `429 Too Many Requests` | Rate limited | Too many requests; retry later |
 | `500 Internal Error` | Internal Server Error | Server-side exception |
