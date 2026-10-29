@@ -31,6 +31,14 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 npm install @chanomhub/sdk
 ```
 
+```typescript
+import { createChanomhubClient } from '@chanomhub/sdk';
+
+const client = createChanomhubClient();
+const result = await client.articles.getAllPaginated({ limit: 10 });
+console.log(result.items, result.total);
+```
+
 ## ฟีเจอร์หลัก
 
 <CardGrid stagger>
