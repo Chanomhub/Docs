@@ -6,7 +6,9 @@ description: ศึกษาโครงสร้าง API ของ ChanomHub 
 import GraphQlSchema from '../../../components/GraphQlSchema.astro';
 import GraphQlPlayground from '../../../components/GraphQlPlayground.astro';
 
-หน้านี้สร้างขึ้นโดยอัตโนมัติจากไฟล์ `v2_schema.json` ในช่วง build-time เพื่อใช้สำหรับศึกษาโครงสร้างข้อมูลและ API ของ ChanomHub
+หน้านี้สร้างจาก `v2_schema.json` ซึ่งเป็น snapshot ของ schema `/api/v2/graphql` ที่ commit ไว้ใน repo เนื่องจาก Production API ปิด introspection ไว้ snapshot จึงถูกสร้างจากไฟล์ SDL ของ backend ด้วยคำสั่ง `bun scripts/generate-graphql-schema.cjs` (รันจาก repo Docs; อ่านไฟล์จาก `../backend/src/graphql/schemas/`) และควรรันใหม่ทุกครั้งที่ schema ฝั่ง backend เปลี่ยน
+
+Schema เดียวกันนี้ให้บริการที่ `/api/v2/graphql` และ `/api/v3/graphql` ส่วน v1 ดั้งเดิม (มี query `downloads` ระดับ root เพิ่ม) อยู่ที่ `/api/graphql` ทดลอง query กับ endpoint จริงได้ผ่าน playground ด้านล่าง
 
 <GraphQlSchema />
 
