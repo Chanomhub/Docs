@@ -3,7 +3,7 @@ title: เริ่มต้นใช้งาน
 description: คู่มือเริ่มต้นใช้งาน ChanomHub
 ---
 
-import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 ## การติดตั้ง
 
@@ -25,28 +25,31 @@ import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
 </Tabs>
 
-## ขั้นตอนการตั้งค่า
-
-<Steps>
-1. ติดตั้ง SDK ตามวิธีด้านบน
-2. สร้างไฟล์ config
-3. เริ่มต้นใช้งาน
-</Steps>
-
 ## ตัวอย่างการใช้งาน
 
+SDK ใช้ค่าเริ่มต้นชี้ไปที่ API ของ ChanomHub อยู่แล้ว จึงเรียกใช้ได้ทันทีโดยไม่ต้องตั้งค่า:
+
 ```typescript
-import { ChanomHub } from '@chanomhub/sdk';
+import { createChanomhubClient } from '@chanomhub/sdk';
 
-const client = new ChanomHub({
-  apiKey: 'your-api-key',
-});
+const client = createChanomhubClient();
 
-// เริ่มใช้งาน
-const result = await client.doSomething();
-console.log(result);
+// ค้นหาบทความ (GraphQL v2)
+const result = await client.articles.getAllPaginated({ limit: 10 });
+console.log(result.items, result.total);
 ```
+
+หากต้องการชี้ไปที่ API อื่น (เช่น การพัฒนาบนเครื่อง) ส่ง config ได้:
+
+```typescript
+const client = createChanomhubClient({
+  apiUrl: 'http://localhost:3000',
+  cdnUrl: 'http://localhost:3000',
+});
+```
+
+`createChanomhubClient` คืน client แบบสาธารณะ (อ่านข้อมูลสาธารณะ) ส่วนการเรียกที่ต้องยืนยันตัวตนใช้ `createAuthenticatedClient` ซึ่งรับ token เพิ่มเข้ามา
 
 ## ขั้นตอนถัดไป
 
-- อ่านเพิ่มเติมในส่วน [อ้างอิง](/reference/api/)
+- ดูรายละเอียดทั้งหมดในส่วน [อ้างอิง API](/reference/api/)
