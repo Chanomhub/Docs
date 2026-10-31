@@ -1,0 +1,26 @@
+---
+title: "Function: createAuthenticatedClient()"
+description: "```ts"
+---
+
+```ts
+function createAuthenticatedClient(token, config): ChanomhubClient;
+```
+
+Defined in: [index.ts:128](https://github.com/Chanomhub/chanomhub-sdk/blob/852943a62fc19777d2f200a731edf439bf819793/index.ts#L128)
+
+Creates a client with authentication token
+Convenience function for authenticated requests
+
+## Parameters
+
+| Parameter | Type                                                                      | Description                      |
+| --------- | ------------------------------------------------------------------------- | -------------------------------- |
+| `token`   | `string`                                                                  | JWT authentication token         |
+| `config`  | `Partial`<[`ChanomhubConfig`](/api/index/interfaces/ChanomhubConfig.mdx)> | Optional configuration overrides |
+
+## Returns
+
+[`ChanomhubClient`](/api/index/interfaces/ChanomhubClient.mdx)
+
+ChanomhubClient
