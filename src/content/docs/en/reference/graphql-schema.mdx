@@ -1,14 +1,14 @@
 ---
 title: GraphQL Schema Browser
-description: Study ChanomHub's API structure via GraphQL Schema
+description: ศึกษาโครงสร้าง API ของ ChanomHub ผ่าน GraphQL Schema
 ---
 
-import GraphQlSchema from '../../../../components/GraphQlSchema.astro';
-import GraphQlPlayground from '../../../../components/GraphQlPlayground.astro';
+import GraphQlSchema from '../../../components/GraphQlSchema.astro';
+import GraphQlPlayground from '../../../components/GraphQlPlayground.astro';
 
-This page is generated from `v2_schema.json`, a committed snapshot of the `/api/v2/graphql` schema. Because introspection is disabled on the production API, the snapshot is refreshed from the backend's SDL sources with `bun scripts/generate-graphql-schema.cjs` (run from the Docs repo; it reads `../backend/src/graphql/schemas/`) instead of a live introspection query. Re-run it after any backend schema change.
+หน้านี้สร้างจาก `v2_schema.json` ซึ่งเป็น snapshot ของ schema `/api/v2/graphql` ที่ commit ไว้ใน repo เนื่องจาก Production API ปิด introspection ไว้ snapshot จึงถูกสร้างจากไฟล์ SDL ของ backend ด้วยคำสั่ง `bun scripts/generate-graphql-schema.cjs` (รันจาก repo Docs; อ่านไฟล์จาก `../backend/src/graphql/schemas/`) และควรรันใหม่ทุกครั้งที่ schema ฝั่ง backend เปลี่ยน
 
-The same schema is served at `/api/v2/graphql` and `/api/v3/graphql`; the legacy v1 schema (adds a root-level `downloads` query) is at `/api/graphql`. Try queries against the live endpoint in the playground below.
+Schema เดียวกันนี้ให้บริการที่ `/api/v2/graphql` และ `/api/v3/graphql` ส่วน v1 ดั้งเดิม (มี query `downloads` ระดับ root เพิ่ม) อยู่ที่ `/api/graphql` ทดลอง query กับ endpoint จริงได้ผ่าน playground ด้านล่าง
 
 <GraphQlSchema />
 

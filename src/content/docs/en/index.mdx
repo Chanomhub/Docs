@@ -1,18 +1,18 @@
 ---
-title: ChanomHub Docs - Developer Documentation & Guides
-description: Comprehensive API documentation, developer guides, and code examples for ChanomHub SDK - The platform for developers building amazing applications
+title: ChanomHub Docs - Documents and manuals for inspections
+description: ศูนย์รวมเอกสาร API, คู่มือการใช้งาน และตัวอย่างโค้ดสำหรับ ChanomHub SDK - แพลตฟอร์มสำหรับนักพัฒนาที่ต้องการสร้างแอปพลิเคชันที่ยอดเยี่ยม
 template: splash
 hero:
-  tagline: Complete API documentation and developer guides with code examples and best practices
+  tagline: เอกสาร API และคู่มือการใช้งานที่ครบถ้วนสำหรับนักพัฒนา พร้อมตัวอย่างโค้ดและ Best Practices
   image:
-    file: ../../../assets/hero.png
+    file: ../../assets/hero.png
     alt: ChanomHub Documentation Hero Image
   actions:
-    - text: Get Started
-      link: /en/guides/getting-started/
+    - text: เริ่มต้นใช้งาน
+      link: /guides/getting-started/
       icon: right-arrow
     - text: API Reference
-      link: /en/reference/api/
+      link: /reference/api/
       icon: document
       variant: minimal
     - text: GitHub
@@ -23,9 +23,9 @@ hero:
 
 import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-## Quick Start
+## เริ่มต้นอย่างรวดเร็ว
 
-Install ChanomHub SDK with a single command:
+ติดตั้ง ChanomHub SDK ด้วยคำสั่งเดียว:
 
 ```bash
 npm install @chanomhub/sdk
@@ -39,49 +39,29 @@ const result = await client.articles.getAllPaginated({ limit: 10 });
 console.log(result.items, result.total);
 ```
 
-## Key Features
+## ฟีเจอร์หลัก
 
 <CardGrid stagger>
-  <Card title="Easy to Use" icon="rocket">
-    APIs designed for simplicity with full TypeScript support
+  <Card title="ง่ายต่อการใช้งาน" icon="rocket">
+    API ที่ออกแบบมาเพื่อความเรียบง่าย พร้อม TypeScript support เต็มรูปแบบ
   </Card>
-  <Card title="Comprehensive Docs" icon="open-book">
-    Detailed guides with code examples and best practices
+  <Card title="เอกสารครบถ้วน" icon="open-book">
+    คู่มือที่ละเอียด พร้อมตัวอย่างโค้ดและ Best Practices
   </Card>
-  <Card title="Multi-language" icon="translate">
-    Documentation available in both Thai and English
+  <Card title="รองรับหลายภาษา" icon="translate">
+    เอกสารพร้อมใช้งานทั้งภาษาไทยและภาษาอังกฤษ
   </Card>
   <Card title="Open Source" icon="github">
-    Open source code on GitHub, contributions welcome
+    โค้ดเปิดเผยบน GitHub พร้อมรับ contributions จากทุกคน
   </Card>
 </CardGrid>
 
-## Learn More
+## เรียนรู้เพิ่มเติม
 
 <CardGrid>
-  <LinkCard
-    title="ChanoX2 — Desktop App"
-    description="Game launcher and library manager for desktop"
-    href="/en/chanox2/getting-started/"
-  />
-  <LinkCard
-    title="ChanoLite — Mobile App"
-    description="ChanomHub on iOS and Android"
-    href="/en/chanolite/getting-started/"
-  />
-  <LinkCard
-    title="Lingo — Game Translation Suite"
-    description="AI translation for RPG Maker, Ren'Py, Godot, and Unity games, with mod publishing"
-    href="/en/lingo/getting-started/"
-  />
-  <LinkCard
-    title="Getting Started Guide"
-    description="Learn the basics of installing and configuring the SDK"
-    href="/en/guides/getting-started/"
-  />
-  <LinkCard
-    title="API Reference"
-    description="View all API details and parameters"
-    href="/en/reference/api/"
-  />
+  <LinkCard title="ChanoX2 — แอปเดสก์ท็อป" description="Launcher สำหรับจัดการและเล่นเกมบนเดสก์ท็อป" href="/chanox2/getting-started/" />
+  <LinkCard title="ChanoLite — แอปมือถือ" description="ใช้งาน ChanomHub บน iOS และ Android" href="/chanolite/getting-started/" />
+  <LinkCard title="Lingo — ชุดเครื่องมือแปลเกม" description="แปลเกม RPG Maker, Ren'Py, Godot, Unity ด้วย AI และเผยแพร่ม็อดแปล" href="/lingo/getting-started/" />
+  <LinkCard title="คู่มือเริ่มต้น" description="เรียนรู้พื้นฐานการติดตั้งและตั้งค่า SDK" href="/guides/getting-started/" />
+  <LinkCard title="API Reference" description="ดูรายละเอียด API และ parameters ทั้งหมด" href="/reference/api/" />
 </CardGrid>
