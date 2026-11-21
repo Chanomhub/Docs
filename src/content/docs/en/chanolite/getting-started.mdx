@@ -1,44 +1,44 @@
 ---
-title: Getting Started with ChanoLite
-description: ChanoLite is the ChanomHub companion app for iOS and Android — installation and quickstart guide
+title: เริ่มต้นใช้งาน ChanoLite
+description: ChanoLite คือแอปมือถือประกอบ ChanomHub สำหรับ iOS และ Android — คู่มือติดตั้งและใช้งานเบื้องต้น
 sidebar:
-  label: Getting Started
+  label: เริ่มต้นใช้งาน
   order: 1
 ---
 
-**ChanoLite** is the Flutter mobile app for using ChanomHub on iOS and Android. Download it from [GitHub Releases](https://github.com/Chanomhub/ChanoLite/releases/latest) (`.apk` for Android, `.aab` for the Play Store).
+**ChanoLite** คือแอปมือถือ (Flutter) สำหรับใช้งาน ChanomHub บน iOS และ Android ดาวน์โหลดได้จาก [GitHub Releases](https://github.com/Chanomhub/ChanoLite/releases/latest) (`.apk` สำหรับ Android และ `.aab` สำหรับ Play Store)
 
-## System requirements
+## ความต้องการของระบบ
 
-- Android 5.0 (API 21) or later, or iOS 12 or later
+* Android 5.0 (API 21) ขึ้นไป หรือ iOS 12 ขึ้นไป
 
-## Key features
+## ฟีเจอร์หลัก
 
-- **Game library** — browse and search ChanomHub articles, follow users, and receive notifications
-- **Downloads** — open article download links directly
-- **Profiles & favorites** — same account as the ChanomHub website (signs in through the same API)
-- **Tools** — extra utilities for translators and developers
-- **Multi-language** — Thai and English built in (switchable in-app)
-- **Dark/Light theme** following the system setting
+* **Library เกม** — เรียกดูและค้นหาบทความเกมจาก ChanomHub พร้อมติดตามผู้ใช้และรับการแจ้งเตือน
+* **ดาวน์โหลดเกมและม็อด** — เปิดลิงก์ดาวน์โหลดจากบทความโดยตรง
+* **โปรไฟล์และรายการโปรด** — บัญชีเดียวกับเว็บ ChanomHub (ล็อกอินผ่าน API เดียวกัน)
+* **เครื่องมือ (Tools)** — ยูทิลิตี้เสริมสำหรับนักแปลและนักพัฒนา
+* **ใช้งานหลายภาษา** — รองรับภาษาไทยและภาษาอังกฤษ (เปลี่ยนได้ในแอป)
+* **ธีม Dark/Light** ตามระบบ
 
-## Building from source
+## การสร้างแอปจากซอร์สโค้ด
 
-Requires Flutter SDK 3.9+ and Dart 3.9+:
+ต้องมี Flutter SDK 3.9+ และ Dart 3.9+:
 
 ```bash
 git clone https://github.com/Chanomhub/ChanoLite.git
 cd ChanoLite
 flutter pub get
-flutter run            # run on a connected device/emulator
+flutter run            # รันบนอุปกรณ์/emulator ที่ต่ออยู่
 
-# Release builds
+# สร้าง release
 flutter build apk --release          # Android
 flutter build appbundle --release    # Play Store
-flutter build ios --release          # iOS (requires macOS)
+flutter build ios --release          # iOS (ต้องใช้ macOS)
 ```
 
-The app talks directly to the public ChanomHub API (`api.chanomhub.com`) — see the [API Reference](/en/reference/api/) for all endpoints.
+แอปเชื่อมต่อกับ API สาธารณะของ ChanomHub (`api.chanomhub.com`) โดยตรง — ดู endpoint ทั้งหมดได้ใน [API Reference](/reference/api/)
 
-## Notifications & permissions
+## การแจ้งเตือนและสิทธิ์
 
-The app requests push-notification permission on sign-in. If you declined it, re-enable it later from the OS settings.
+แอปจะขอสิทธิ์การแจ้งเตือน (Push) เมื่อล็อกอิน หากปฏิเสธไปแล้วสามารถเปิดใหม่ได้จากการตั้งค่าของระบบปฏิบัติการ

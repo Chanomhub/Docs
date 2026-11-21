@@ -1,74 +1,74 @@
 ---
-title: API Reference
-description: Complete REST API, GraphQL, RSS, and Developer API specification for ChanomHub users and developers
+title: API Reference (เอกสารอ้างอิง API)
+description: รายละเอียดและข้อกำหนด REST API, GraphQL, RSS และ Developer APIs ของ ChanomHub สำหรับผู้ใช้และนักพัฒนา
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-This guide outlines the public and developer APIs provided by the **ChanomHub** platform for querying, integrating, and managing articles, mods, downloads, and developer features.
+คู่มือฉบับนี้รวบรวม API ทั้งหมดที่ผู้ใช้และนักพัฒนาสามารถใช้งานได้บนแพลตฟอร์ม **ChanomHub** เพื่อเชื่อมต่อ ค้นหา ดึงข้อมูลบทความ ม็อด (Mods) หรือผสานรวมบริการต่างๆ
 
-## Overview
+## ภาพรวมระบบ API (Overview)
 
-- **Base URL (REST)**: `https://api.chanomhub.com/api` (or `http://localhost:3000/api` for local development)
-- **GraphQL endpoints**: `/api/graphql` (v1), `/api/v2/graphql`, `/api/v3/graphql`
-- **Interactive Swagger docs**: [https://api.chanomhub.com/api-docs](https://api.chanomhub.com/api-docs)
+* **Base URL (REST)**: `https://api.chanomhub.com/api` (หรือ `http://localhost:3000/api` สำหรับ Local)
+* **GraphQL Endpoints**: `/api/graphql` (v1), `/api/v2/graphql`, `/api/v3/graphql`
+* **Swagger Documentation**: [https://api.chanomhub.com/api-docs](https://api.chanomhub.com/api-docs)
 
-All REST responses are wrapped by a global envelope: the payload you want is inside the `data` field of the response body.
+Response ของ REST API ทั้งหมดจะถูกห่อด้วย envelope กลาง — payload จริงจะอยู่ในฟิลด์ `data` ของ response body เสมอ
 
 ```json
 { "data": { "...payload": "" }, "statusCode": 200, "timestamp": "2026-01-01T00:00:00.000Z" }
 ```
 
-The examples below show the unwrapped payload shape.
+ตัวอย่างในเอกสารนี้แสดงรูปแบบ payload หลังถอด envelope แล้ว
 
 ---
 
-## 1. Authentication
+## 1. การยืนยันตัวตน (Authentication)
 
-Public read endpoints (articles, mods, downloads, search) work without a token. For write operations and personal resources, send a Bearer token:
+Endpoint สาธารณะส่วนใหญ่ (บทความ, ม็อด, ดาวน์โหลด, ค้นหา) ไม่ต้องใช้ Token แต่การดำเนินการเขียนข้อมูลหรือเข้าถึงข้อมูลส่วนตัวต้องส่ง Header:
 
 ```http
 Authorization: Bearer <YOUR_TOKEN>
 ```
 
-### Session endpoints (Better Auth)
+### Session Endpoints (Better Auth)
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/auth/sign-in/email` | `POST` | Sign in with email and password |
-| `/api/auth/sign-up/email` | `POST` | Register a new account |
-| `/api/auth/sign-out` | `POST` | Sign out / invalidate the session |
-| `/api/auth/sign-in/social` | `GET` | Start OAuth login (`google`, `discord`, `github`); `provider` query parameter required |
+| Endpoint                   | Method | คำอธิบาย                                                                                              |
+| -------------------------- | ------ | ----------------------------------------------------------------------------------------------------- |
+| `/api/auth/sign-in/email`  | `POST` | เข้าสู่ระบบด้วย Email และ Password                                                                    |
+| `/api/auth/sign-up/email`  | `POST` | สมัครสมาชิกใหม่ด้วย Email                                                                             |
+| `/api/auth/sign-out`       | `POST` | ออกจากระบบ (Invalidate Session)                                                                       |
+| `/api/auth/sign-in/social` | `GET`  | เข้าสู่ระบบผ่าน Social Provider (`google`, `discord`, `github`) — ต้องระบุ query parameter `provider` |
 
-### Token & password endpoints (JWT)
+### Token & Password Endpoints (JWT)
 
-| Endpoint | Method | Auth | Description |
-|---|---|---|---|
-| `/api/auth/refresh` | `POST` | ❌ | Refresh an access token |
-| `/api/auth/forgot-password` | `POST` | ❌ | Send a password reset email |
-| `/api/auth/reset-password` | `POST` | ❌ | Reset the password with a reset token |
-| `/api/auth/logout` | `POST` | ✅ | Revoke the current token |
-| `/api/auth/logout-all` | `POST` | ✅ | Revoke all tokens of the user |
-| `/api/auth/exchange` | `POST` | ❌ | Exchange a third-party token for a ChanomHub JWT |
-| `/api/auth/verify` | `GET` / `POST` | ❌ | Validate a JWT; returns `{ valid, userId }` |
+| Endpoint                    | Method         | Auth | คำอธิบาย                                            |
+| --------------------------- | -------------- | ---- | --------------------------------------------------- |
+| `/api/auth/refresh`         | `POST`         | ❌    | ต่ออายุ Access Token                                |
+| `/api/auth/forgot-password` | `POST`         | ❌    | ส่งอีเมลตั้งรหัสผ่านใหม่                            |
+| `/api/auth/reset-password`  | `POST`         | ❌    | ตั้งรหัสผ่านใหม่ด้วย Reset Token                    |
+| `/api/auth/logout`          | `POST`         | ✅    | เพิกถอน Token ปัจจุบัน                              |
+| `/api/auth/logout-all`      | `POST`         | ✅    | เพิกถอน Token ทั้งหมดของผู้ใช้                      |
+| `/api/auth/exchange`        | `POST`         | ❌    | แลก Token จากผู้ให้บริการอื่นเป็น JWT ของ ChanomHub |
+| `/api/auth/verify`          | `GET` / `POST` | ❌    | ตรวจสอบ JWT — คืนค่า `{ valid, userId }`            |
 
 ---
 
-## 2. Articles API
+## 2. API สำหรับบทความ (Articles API)
 
-### 2.1 List articles
+### 2.1 ดึงรายการบทความ (List Articles)
 
 `GET /api/articles`
 
-**Query parameters:**
+**Query Parameters:**
 
-- `q` (string): search in title/description/body (minimum 3 characters)
-- `author`, `creator`, `tag`, `category`, `platform`, `engine`, `language`, `favorited` (string): filters
-- `status` (string): `PUBLISHED` by default for anonymous calls
-- `sequentialCode` (string): exact article code lookup
-- `sortBy` (string): `updatedAt` (default), `createdAt`, `viewsCount`, `title`
-- `sortOrder` (string): `asc` / `desc`
-- `limit` (number, default `20`), `offset` (number, default `0`) — pagination is offset-based
+* `q` (string): ค้นหาในชื่อ/คำอธิบาย/เนื้อหา (อย่างน้อย 3 ตัวอักษร)
+* `author`, `creator`, `tag`, `category`, `platform`, `engine`, `language`, `favorited` (string): ตัวกรอง
+* `status` (string): ค่าเริ่มต้นสำหรับผู้ไม่ล็อกอินคือ `PUBLISHED`
+* `sequentialCode` (string): ค้นหาด้วยรหัสบทความ
+* `sortBy` (string): `updatedAt` (ค่าเริ่มต้น), `createdAt`, `viewsCount`, `title`
+* `sortOrder` (string): `asc` / `desc`
+* `limit` (number, ค่าเริ่มต้น `20`), `offset` (number, ค่าเริ่มต้น `0`) — แบ่งหน้าแบบ offset
 
 <Tabs>
   <TabItem label="cURL">
@@ -85,7 +85,7 @@ console.log(data.articles, data.articlesCount);
   </TabItem>
 </Tabs>
 
-**Response (unwrapped):**
+**Response (หลังถอด envelope):**
 
 ```json
 {
@@ -94,178 +94,180 @@ console.log(data.articles, data.articlesCount);
 }
 ```
 
-### 2.2 Feeds & own articles (authenticated)
+### 2.2 Feed และบทความของตนเอง (ต้องยืนยันตัวตน)
 
-- `GET /api/articles/feed` — articles from followed users
-- `GET /api/articles/me` — the caller's own articles (including drafts)
-- `POST /api/articles/reserve` — reserve a unique slug for a new article
+* `GET /api/articles/feed` — บทความจากผู้ใช้ที่ติดตาม
+* `GET /api/articles/me` — บทความของผู้ใช้เอง (รวม Draft)
+* `POST /api/articles/reserve` — จอง slug ที่ไม่ซ้ำสำหรับบทความใหม่
 
-### 2.3 Article details
+### 2.3 อ่านรายละเอียดบทความ
 
-- `GET /api/articles/:slug` — full article by slug
-- `GET /api/articles/:slug/related` — related articles
-- `POST /api/articles/:slug/view` — increment the view counter
+* `GET /api/articles/:slug` — อ่านบทความเต็มจาก slug
+* `GET /api/articles/:slug/related` — บทความที่เกี่ยวข้อง
+* `POST /api/articles/:slug/view` — เพิ่มยอดเข้าชม
 
-### 2.4 Article management (authenticated)
+### 2.4 จัดการบทความ (ต้องยืนยันตัวตน)
 
-- `POST /api/articles` — create an article (draft)
-- `PUT /api/articles/:slug` — update an article
-- `DELETE /api/articles/:slug` — soft-delete (restore with `POST /api/articles/:slug/restore`)
-- `DELETE /api/articles/:slug/permanent` — permanent delete
-- `POST /api/articles/:slug/publish-request` — submit a draft for moderation
-- `POST /api/articles/:slug/transfer-request` — request ownership transfer to another user
-- `GET /api/articles/:slug/transfer-request` — get the active transfer request
-- `DELETE /api/articles/:slug/transfer-request` — cancel the transfer request
-- `POST /api/articles/:slug/favorite` — bookmark an article
-- `DELETE /api/articles/:slug/favorite` — remove the bookmark
-- `POST /api/articles/:slug/rate` — rate an article (`{ "rating": 1..10 }`)
+* `POST /api/articles` — สร้างบทความใหม่ (Draft)
+* `PUT /api/articles/:slug` — แก้ไขบทความ
+* `DELETE /api/articles/:slug` — ลบแบบ Soft Delete (กู้คืนด้วย `POST /api/articles/:slug/restore`)
+* `DELETE /api/articles/:slug/permanent` — ลบถาวร
+* `POST /api/articles/:slug/publish-request` — ส่ง Draft เข้าสู่การตรวจสอบ (Moderation)
+* `POST /api/articles/:slug/transfer-request` — ส่งคำขอโอนสิทธิ์ความเป็นเจ้าของบทความ
+* `GET /api/articles/:slug/transfer-request` — ดูคำขอโอนสิทธิ์ที่รออยู่
+* `DELETE /api/articles/:slug/transfer-request` — ยกเลิกคำขอโอนสิทธิ์
+* `POST /api/articles/:slug/favorite` — เพิ่มบทความเข้ารายการโปรด
+* `DELETE /api/articles/:slug/favorite` — ยกเลิกรายการโปรด
+* `POST /api/articles/:slug/rate` — ให้คะแนนบทความ (`{ "rating": 1..10 }`)
 
-### 2.5 Revision history
+### 2.5 ประวัติการแก้ไข (Revision History)
 
-- `GET /api/articles/:slug/revisions` — list revisions
-- `GET /api/articles/:slug/revisions/:version` — one revision (with reconstructed content)
-- `POST /api/articles/:slug/revisions/:version/restore` — restore a revision
-- `GET /api/articles/:slug/revisions/compare` — diff two revisions (`from`, `to` query parameters)
-
----
-
-## 3. Comments API
-
-| Endpoint | Method | Auth | Description |
-|---|---|---|---|
-| `/api/articles/:slug/comments` | `GET` | ❌ | Comment tree for an article |
-| `/api/articles/:slug/comments` | `POST` | ✅ | Post a comment or reply |
-| `/api/articles/:slug/comments/:id` | `DELETE` | ✅ | Delete your own comment |
+* `GET /api/articles/:slug/revisions` — รายการ revision ทั้งหมด
+* `GET /api/articles/:slug/revisions/:version` — ดู revision หนึ่ง (พร้อมเนื้อหาที่ reconstruct แล้ว)
+* `POST /api/articles/:slug/revisions/:version/restore` — กู้คืนเป็น revision นั้น
+* `GET /api/articles/:slug/revisions/compare` — เปรียบเทียบสอง revision (`from`, `to`)
 
 ---
 
-## 4. Mods & Engines API
+## 3. API สำหรับความคิดเห็น (Comments API)
 
-Mods are translation/gameplay add-ons attached to published articles.
-
-- `GET /api/mods` — list mods; filters: `status` (moderators only), `skip`, `take`, `type`, `language`, `search`, `articleId`, `articleSlug`, `creatorId`
-- `GET /api/mods/article/:slug` — all mods of an article (filters: `status`, `type`, `language`)
-- `GET /api/mods/:slug/versions` — version history of a mod
-- `GET /api/mods/:slug/versions/:version` — one mod version
-- `GET /api/mods/:slug/download/:version` — download a specific version
-- `POST /api/mods/article/:slug` (Auth) — submit a mod (files a moderation request automatically)
-- `POST /api/mods/article/:slug/nst-submission` (Auth) — submit an NST translation package
-- `POST /api/mods/:id/versions` (Auth) — publish a new mod version
-- `PATCH /api/mods/:id/versions/:versionId` (Auth) — edit a mod version
-- `DELETE /api/mods/:id/versions/:versionId` (Auth) — remove a mod version
-- `PATCH /api/mods/:id` (Auth) — update mod metadata
-- `PATCH /api/mods/:id/status` (Auth, moderators) — approve/reject a mod
-- `DELETE /api/mods/:id` (Auth) — delete a mod
-
-Taxonomy:
-
-- `GET /api/mod-categories` — mod categories
-- `GET /api/engines` — supported game engines (Ren'Py, Unity, RPG Maker, …)
+| Endpoint                           | Method   | Auth | คำอธิบาย                             |
+| ---------------------------------- | -------- | ---- | ------------------------------------ |
+| `/api/articles/:slug/comments`     | `GET`    | ❌    | ดึงรายการความคิดเห็นทั้งหมดของบทความ |
+| `/api/articles/:slug/comments`     | `POST`   | ✅    | แสดงความคิดเห็น หรือตอบกลับ (Reply)  |
+| `/api/articles/:slug/comments/:id` | `DELETE` | ✅    | ลบความคิดเห็นของผู้ใช้เอง            |
 
 ---
 
-## 5. Downloads API
+## 4. API ม็อดและเอนจินเกม (Mods & Engines API)
 
-- `GET /api/downloads/article/:articleId` — **public** list of approved download links for an article: `{ links: [{ url, isActive, status, ... }] }`
-- `GET /api/downloads/article/slug/:slug` — same, by slug
-- `GET /api/downloads/:id` (Auth) — one download link by ID
-- `POST /api/downloads` (Auth) — create a download link
-- `PATCH /api/downloads/:id` (Auth) — update a download link
-- `DELETE /api/downloads/:id` (Auth) — delete a download link
-- `GET /api/downloads` (Auth) — list your download links
-- `GET /api/downloads/pending` (Auth, moderators) — links awaiting moderation
-- `PATCH /api/downloads/:id/moderate` (Auth, moderators) — approve/reject a link
+ม็อดคือไฟล์แปล/ม็อดเกมเพลย์ที่ผูกกับบทความที่เผยแพร่แล้ว
 
-Official download sources (verified mirrors):
+* `GET /api/mods` — รายการม็อด; ตัวกรอง: `status` (Moderator เท่านั้น), `skip`, `take`, `type`, `language`, `search`, `articleId`, `articleSlug`, `creatorId`
+* `GET /api/mods/article/:slug` — ม็อดทั้งหมดของบทความ (ตัวกรอง: `status`, `type`, `language`)
+* `GET /api/mods/:slug/versions` — ประวัติเวอร์ชันของม็อด
+* `GET /api/mods/:slug/versions/:version` — ดูเวอร์ชันหนึ่ง
+* `GET /api/mods/:slug/download/:version` — ดาวน์โหลดเวอร์ชันที่ระบุ
+* `POST /api/mods/article/:slug` (Auth) — ส่งม็อดใหม่ (จะสร้างคำขอ Moderation ให้อัตโนมัติ)
+* `POST /api/mods/article/:slug/nst-submission` (Auth) — ส่งแพ็กเกจแปลจาก NST
+* `POST /api/mods/:id/versions` (Auth) — เผยแพร่เวอร์ชันใหม่ของม็อด
+* `PATCH /api/mods/:id/versions/:versionId` (Auth) — แก้ไขเวอร์ชันของม็อด
+* `DELETE /api/mods/:id/versions/:versionId` (Auth) — ลบเวอร์ชันของม็อด
+* `PATCH /api/mods/:id` (Auth) — แก้ไขข้อมูลม็อด
+* `PATCH /api/mods/:id/status` (Auth, Moderator) — อนุมัติ/ปฏิเสธม็อด
+* `DELETE /api/mods/:id` (Auth) — ลบม็อด
 
-- `GET /api/official-download-sources/article/:articleId/approved` — approved official sources of an article
+หมวดหมู่และเอนจิน:
+
+* `GET /api/mod-categories` — หมวดหมู่ม็อด
+* `GET /api/engines` — Game Engines ที่รองรับ (Ren'Py, Unity, RPG Maker ฯลฯ)
 
 ---
 
-## 6. Taxonomy APIs (Tags, Categories & Platforms)
+## 5. API ดาวน์โหลดไฟล์ (Downloads API)
 
-- `GET /api/tags` — all tags with usage counts
-- `GET /api/categories` — all categories
-- `GET /api/platforms` — game platforms (PC, Mobile, Android, Switch, …)
+* `GET /api/downloads/article/:articleId` — **สาธารณะ** — ลิงก์ดาวน์โหลดที่อนุมัติแล้วของบทความ: `{ links: [{ url, isActive, status, ... }] }`
+* `GET /api/downloads/article/slug/:slug` — เหมือนกันแต่ระบุด้วย slug
+* `GET /api/downloads/:id` (Auth) — ดูลิงก์ดาวน์โหลดหนึ่งรายการ
+* `POST /api/downloads` (Auth) — สร้างลิงก์ดาวน์โหลด
+* `PATCH /api/downloads/:id` (Auth) — แก้ไขลิงก์ดาวน์โหลด
+* `DELETE /api/downloads/:id` (Auth) — ลบลิงก์ดาวน์โหลด
+* `GET /api/downloads` (Auth) — รายการลิงก์ของผู้ใช้เอง
+* `GET /api/downloads/pending` (Auth, Moderator) — ลิงก์ที่รอตรวจสอบ
+* `PATCH /api/downloads/:id/moderate` (Auth, Moderator) — อนุมัติ/ปฏิเสธลิงก์
+
+แหล่งดาวน์โหลดทางการ (Official Sources):
+
+* `GET /api/official-download-sources/article/:articleId/approved` — แหล่งดาวน์โหลดทางการที่อนุมัติแล้วของบทความ
 
 ---
 
-## 7. Profiles API
+## 6. หมวดหมู่ แฮชแท็ก และแพลตฟอร์ม (Taxonomy APIs)
 
-- `GET /api/profiles/:username` — public profile (optional auth adds follow state)
-- `POST /api/profiles/:username/follow` (Auth) — follow / unfollow a user
+* `GET /api/tags` — รายชื่อ Tag ทั้งหมดพร้อมจำนวนการใช้งาน
+* `GET /api/categories` — รายชื่อ Category ทั้งหมด
+* `GET /api/platforms` — รายชื่อแพลตฟอร์มเกม (PC, Mobile, Android, Switch ฯลฯ)
+
+---
+
+## 7. API โปรไฟล์ (Profiles API)
+
+* `GET /api/profiles/:username` — โปรไฟล์สาธารณะ (ถ้าส่ง Token จะได้สถานะการติดตามเพิ่ม)
+* `POST /api/profiles/:username/follow` (Auth) — ติดตาม / เลิกติดตามผู้ใช้
 
 ---
 
 ## 8. Developer Portal & API Verification
 
+ระบบยืนยันตัวตนสำหรับผู้พัฒนา (Developer Status) และการจัดการโทเค็น:
+
 ### Endpoints
 
-- `GET /api/developer/list` — verified developers
-- `GET /api/developer/profile` (Auth) — your developer profile
-- `POST /api/developer/apply` (Auth) — submit a developer application
-- `POST /api/developer/generate-token` (Auth) — generate a one-time verification token
-- `POST /api/developer/verify/:token` (Auth) — verify with the one-time token
-- `PATCH /api/developer/profile` (Auth) — update developer profile details
+* `GET /api/developer/list` — ดูรายชื่อนักพัฒนาที่ผ่านการยืนยันแล้ว
+* `GET /api/developer/profile` (Auth) — ดูข้อมูลโปรไฟล์ Developer ของตนเอง
+* `POST /api/developer/apply` (Auth) — ส่งคำขอสมัครเป็น Developer
+* `POST /api/developer/generate-token` (Auth) — สร้าง One-Time Token สำหรับยืนยันตัวตน
+* `POST /api/developer/verify/:token` (Auth) — กดยืนยันด้วย One-Time Token
+* `PATCH /api/developer/profile` (Auth) — อัปเดตข้อมูลโปรไฟล์ผู้พัฒนา
 
 ---
 
-## 9. Notifications API (authenticated)
+## 9. API การแจ้งเตือน (Notifications API — ต้องยืนยันตัวตน)
 
-- `GET /api/notifications` — list notifications for the current user
-- `PATCH /api/notifications/:id/read` — mark one as read
-- `PATCH /api/notifications/read-all` — mark all as read
-- `DELETE /api/notifications/:id` — delete one
-- `DELETE /api/notifications` — delete all
-
----
-
-## 10. Sponsored Articles API
-
-- `GET /api/sponsored-articles` — active sponsored placements
-- `GET /api/sponsored-articles/:id` — one placement
-
-Admin endpoints (`GET /api/sponsored-articles/admin/all`, `POST`, `PUT /:id`, `DELETE /:id`) require the admin role.
+* `GET /api/notifications` — รายการแจ้งเตือนของผู้ใช้ปัจจุบัน
+* `PATCH /api/notifications/:id/read` — ทำเครื่องหมายว่าอ่านแล้วหนึ่งรายการ
+* `PATCH /api/notifications/read-all` — ทำเครื่องหมายว่าอ่านแล้วทั้งหมด
+* `DELETE /api/notifications/:id` — ลบหนึ่งรายการ
+* `DELETE /api/notifications` — ลบทั้งหมด
 
 ---
 
-## 11. Videos API
+## 10. API บทความสปอนเซอร์ (Sponsored Articles API)
 
-- `GET /api/videos` — list videos
-- `POST /api/videos` (Auth) — create a video entry
+* `GET /api/sponsored-articles` — รายการสปอนเซอร์ที่กำลังแสดง
+* `GET /api/sponsored-articles/:id` — ดูรายการหนึ่ง
+
+Endpoint ฝั่งแอดมิน (`GET /api/sponsored-articles/admin/all`, `POST`, `PUT /:id`, `DELETE /:id`) ต้องใช้สิทธิ์แอดมิน
+
+---
+
+## 11. API วิดีโอ (Videos API)
+
+* `GET /api/videos` — รายการวิดีโอ
+* `POST /api/videos` (Auth) — สร้างรายการวิดีโอ
 
 ---
 
 ## 12. MCP Server (Model Context Protocol)
 
-ChanomHub exposes a read-only [MCP](https://modelcontextprotocol.io) server over Streamable HTTP for AI assistants:
+ChanomHub เปิด [MCP](https://modelcontextprotocol.io) server แบบอ่านอย่างเดียวผ่าน Streamable HTTP สำหรับ AI assistant:
 
-- `POST /api/mcp` (Auth) — JSON-RPC transport (`initialize` first, then session requests carry the `mcp-session-id` header)
-- `GET /api/mcp` (Auth) — SSE stream for an existing session
-- `DELETE /api/mcp` (Auth) — terminate the session
+* `POST /api/mcp` (Auth) — ช่องทาง JSON-RPC (`initialize` ก่อน แล้วส่งคำขอต่อด้วย header `mcp-session-id`)
+* `GET /api/mcp` (Auth) — เปิด SSE stream ของ session ที่มีอยู่
+* `DELETE /api/mcp` (Auth) — ปิด session
 
-Exposed tools are read-only queries over articles, mods, comments, and profiles.
+เครื่องมือที่เปิดให้ใช้เป็นการค้น/อ่านข้อมูลบทความ ม็อด คอมเมนต์ และโปรไฟล์เท่านั้น
 
 ---
 
 ## 13. GraphQL API
 
-Three GraphQL versions are served by the same gateway (GraphQL Yoga):
+ระบบให้บริการ GraphQL 3 เวอร์ชันผ่าน gateway เดียวกัน (GraphQL Yoga):
 
-| Version | Endpoint | Notes |
-|---|---|---|
-| v1 | `/api/graphql` (alias `/api/v1/graphql`) | Original schema |
-| v2 | `/api/v2/graphql` | Current public schema (`public`, `system`, `moderate` root queries) |
-| v3 | `/api/v3/graphql` | Same schema as v2; also accepts the HTTP `QUERY` method (mutations rejected on `QUERY`) |
+| เวอร์ชัน | Endpoint                                 | หมายเหตุ                                                                        |
+| -------- | ---------------------------------------- | ------------------------------------------------------------------------------- |
+| v1       | `/api/graphql` (alias `/api/v1/graphql`) | Schema ดั้งเดิม                                                                 |
+| v2       | `/api/v2/graphql`                        | Schema สาธารณะปัจจุบัน (`public`, `system`, `moderate`)                         |
+| v3       | `/api/v3/graphql`                        | Schema เดียวกับ v2; รองรับ HTTP method `QUERY` เพิ่ม (ห้าม Mutation บน `QUERY`) |
 
-- **Methods**: `GET` (cached 60s) and `POST`; `QUERY` on v3
-- **Introspection is disabled in production** (per-environment override: `ENABLE_INTROSPECTION=true`)
-- Query depth is limited to 10
-- Automatic persistent queries (APQ) are supported
+* **Methods ที่รองรับ**: `GET` (cache 60 วินาที) และ `POST`; `QUERY` เฉพาะ v3
+* **Introspection ถูกปิดใน Production** (เปิดต่อสภาพแวดล้อมด้วย `ENABLE_INTROSPECTION=true`)
+* จำกัดความลึกของ query ที่ 10 ระดับ
+* รองรับ Automatic Persistent Queries (APQ)
 
-Browse the schema in the [GraphQL Schema Browser](/en/reference/graphql-schema/) (built from a committed snapshot).
+ศึกษา Schema เพิ่มเติมได้ที่ [GraphQL Schema Browser](/reference/graphql-schema/) (สร้างจาก snapshot ที่ commit ไว้)
 
-Example:
+ตัวอย่าง:
 
 ```bash
 curl https://api.chanomhub.com/api/v2/graphql \
@@ -277,20 +279,24 @@ curl https://api.chanomhub.com/api/v2/graphql \
 
 ## 14. RSS Feeds
 
-- **Platform feed**: `https://chanomhub.com/<locale>/platforms/<slug>/rss` — e.g. [https://chanomhub.com/en/platforms/pc/rss](https://chanomhub.com/en/platforms/pc/rss)
-- **Tag feed**: `https://chanomhub.com/<locale>/tag/<slug>/rss` — e.g. [https://chanomhub.com/en/tag/visual-novel/rss](https://chanomhub.com/en/tag/visual-novel/rss)
+ChanomHub รองรับ RSS Feeds เพื่อใช้ติดตามข่าวสารและบทความตามหมวดหมู่หรือแพลตฟอร์ม:
+
+* **Platform RSS Feed**: `https://chanomhub.com/<locale>/platforms/<slug>/rss`
+  * *ตัวอย่าง*: [https://chanomhub.com/th/platforms/pc/rss](https://chanomhub.com/th/platforms/pc/rss)
+* **Tag RSS Feed**: `https://chanomhub.com/<locale>/tag/<slug>/rss`
+  * *ตัวอย่าง*: [https://chanomhub.com/th/tag/visual-novel/rss](https://chanomhub.com/th/tag/visual-novel/rss)
 
 ---
 
-## HTTP Status Codes
+## สรุปสถานะรหัสตอบกลับ (HTTP Status Codes)
 
-| Status Code | Meaning | Description |
-|---|---|---|
-| `200 OK` | Success | Request succeeded |
-| `201 Created` | Created | Resource successfully created |
-| `400 Bad Request` | Bad Request | Invalid inputs or malformed body |
-| `401 Unauthorized` | Unauthorized | Bearer token required in HTTP Header |
-| `403 Forbidden` | Forbidden | Insufficient permissions for operation |
-| `404 Not Found` | Not Found | Requested slug or resource not found |
-| `429 Too Many Requests` | Rate limited | Too many requests; retry later |
-| `500 Internal Error` | Internal Server Error | Server-side exception |
+| Status Code             | ความหมาย                 | คำอธิบาย                                    |
+| ----------------------- | ------------------------ | ------------------------------------------- |
+| `200 OK`                | สำเร็จ                   | ดึงข้อมูลหรือทำรายการสำเร็จ                 |
+| `201 Created`           | สร้างข้อมูลสำเร็จ        | สร้างบทความ หรือส่งข้อมูลสำเร็จ             |
+| `400 Bad Request`       | ข้อมูลไม่ถูกต้อง         | ข้อมูลนำเข้าไม่ถูกต้องตามข้อกำหนด           |
+| `401 Unauthorized`      | ยังไม่ได้ยืนยันตัวตน     | ต้องระบุ Bearer Token ใน HTTP Header        |
+| `403 Forbidden`         | ไม่มีสิทธิ์ใช้งาน        | สิทธิ์ของผู้ใช้ไม่เพียงพอในการทำรายการนี้   |
+| `404 Not Found`         | ไม่พบข้อมูล              | ไม่พบ Slug หรือ Resource ที่ร้องขอ          |
+| `429 Too Many Requests` | เรียกใช้งานถี่เกินไป     | มีการเรียกใช้งานมากเกินไป ให้ลองใหม่ภายหลัง |
+| `500 Internal Error`    | ข้อผิดพลาดของเซิร์ฟเวอร์ | เกิดปัญหาภายในระบบเซิร์ฟเวอร์               |
