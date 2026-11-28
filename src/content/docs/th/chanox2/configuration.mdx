@@ -1,0 +1,182 @@
+---
+title: การตั้งค่า ChanoX2
+description: คู่มือการปรับแต่งและตั้งค่า ChanoX2 ให้เหมาะกับการใช้งานของคุณ รวมถึง General Settings, Library Settings และ Advanced Settings
+sidebar:
+  label: การตั้งค่า
+  order: 3
+---
+
+คู่มือการปรับแต่งและตั้งค่า ChanoX2 ให้เหมาะกับการใช้งานของคุณ
+
+## การเข้าถึง Settings
+
+เปิด Settings ได้หลายวิธี:
+
+* คลิกไอคอน **⚙️** ที่มุมล่างซ้าย
+* กดปุ่มลัด `Ctrl + ,` (Windows/Linux) หรือ `Cmd + ,` (macOS)
+* ไปที่เมนู **File** → **Settings**
+
+---
+
+## General Settings
+
+### Appearance
+
+| การตั้งค่า       | คำอธิบาย                            |
+| ---------------- | ----------------------------------- |
+| **Theme**        | เลือก Dark, Light, หรือ System      |
+| **Accent Color** | สีหลักของ UI                        |
+| **Font Size**    | ขนาดตัวอักษร (Small, Medium, Large) |
+| **Animations**   | เปิด/ปิด animations                 |
+
+### Language
+
+เปลี่ยนภาษาของโปรแกรม:
+
+1. ไปที่ **Settings** → **General** → **Language**
+2. เลือกภาษาที่ต้องการ
+3. โปรแกรมจะ restart เพื่อใช้งานภาษาใหม่
+
+### Startup
+
+* **Launch at startup** - เปิดโปรแกรมอัตโนมัติเมื่อ boot
+* **Start minimized** - เริ่มต้นแบบย่อ
+* **Check for updates** - ตรวจสอบอัปเดตอัตโนมัติ
+
+---
+
+## Library Settings
+
+### Scan Folders
+
+จัดการโฟลเดอร์ที่ต้องการสแกน:
+
+```
+Settings → Library → Scan Folders
+```
+
+* **Add Folder** - เพิ่มโฟลเดอร์ใหม่
+* **Remove** - ลบโฟลเดอร์ออก
+* **Exclude** - ยกเว้นโฟลเดอร์ย่อย
+
+### Auto Detection
+
+| ตัวเลือก            | คำอธิบาย                      |
+| ------------------- | ----------------------------- |
+| **Detect Engine**   | ตรวจจับ Game Engine อัตโนมัติ |
+| **Fetch Metadata**  | ดึงข้อมูลเกมจากอินเทอร์เน็ต   |
+| **Download Covers** | ดาวน์โหลดรูปปกอัตโนมัติ       |
+
+### Display Options
+
+* **Default View** - มุมมองเริ่มต้น (Grid, List, Compact)
+* **Sort By** - เรียงลำดับเริ่มต้น
+* **Show Hidden** - แสดงเกมที่ซ่อน
+
+---
+
+## Game Launch Settings
+
+### Windows Compatibility (Linux)
+
+สำหรับ Linux users ที่ต้องการรันเกม Windows:
+
+```
+Settings → Games → Windows Compatibility
+```
+
+| ตัวเลือก         | คำอธิบาย                       |
+| ---------------- | ------------------------------ |
+| **Use Wine**     | เปิดใช้ Wine สำหรับเกม Windows |
+| **Wine Version** | เลือกเวอร์ชัน Wine             |
+| **Proton**       | ใช้ Proton แทน Wine            |
+| **DXVK**         | เปิดใช้ DXVK สำหรับ DirectX    |
+
+### Launch Options
+
+ตั้งค่า launch arguments สำหรับแต่ละเกม:
+
+1. คลิกขวาที่เกม → **Properties**
+2. ไปที่ tab **Launch Options**
+3. เพิ่ม arguments เช่น:
+   * `-windowed` - เปิดแบบ windowed
+   * `-skipIntro` - ข้าม intro
+   * `-debug` - เปิด debug mode
+
+### Post-Launch Behavior
+
+| ตัวเลือก      | คำอธิบาย               |
+| ------------- | ---------------------- |
+| **Minimize**  | ย่อโปรแกรมเมื่อเปิดเกม |
+| **Close**     | ปิดโปรแกรมเมื่อเปิดเกม |
+| **Keep Open** | เปิดค้างไว้            |
+
+---
+
+## Data & Storage
+
+### Backup
+
+สำรองข้อมูล Library:
+
+```
+Settings → Data → Backup
+```
+
+* **Export** - ส่งออกข้อมูลเป็นไฟล์ JSON
+* **Import** - นำเข้าจากไฟล์ backup
+* **Auto Backup** - สำรองอัตโนมัติ
+
+### Cache
+
+* **Clear Image Cache** - ล้างแคชรูปภาพ
+* **Clear Metadata Cache** - ล้างแคช metadata
+* **Cache Location** - เปลี่ยนตำแหน่งแคช
+
+### Database
+
+* **Rebuild Database** - สร้าง database ใหม่ (แก้ไขปัญหา)
+* **Optimize** - optimize database
+
+---
+
+## Advanced Settings
+
+### Performance
+
+| ตัวเลือก                  | คำอธิบาย             |
+| ------------------------- | -------------------- |
+| **Hardware Acceleration** | ใช้ GPU เร่งความเร็ว |
+| **Reduce Motion**         | ลด animations        |
+| **Background Scanning**   | สแกนขณะทำงานปกติ     |
+
+### Developer Options
+
+เปิดใช้งาน Developer Options:
+
+1. ไปที่ **Settings** → **About**
+2. คลิก version number 7 ครั้ง
+3. กลับไปที่ Settings จะเห็นเมนู **Developer**
+
+Developer Options ประกอบด้วย:
+
+* DevTools access
+* Log viewer
+* Debug mode
+* Experimental features
+
+---
+
+## Reset Settings
+
+### Reset บางส่วน
+
+ไปที่ Settings แต่ละหมวด แล้วคลิก **Reset to Default**
+
+### Reset ทั้งหมด
+
+```
+Settings → Advanced → Reset All Settings
+```
+
+> ⚠️ **คำเตือน**: การ reset จะล้างการตั้งค่าทั้งหมด แต่ไม่ลบข้อมูล Library
